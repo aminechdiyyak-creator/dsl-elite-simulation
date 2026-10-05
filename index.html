@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DSL Elite — Business Simulation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050505;
+      --bg-2: #0b0b0d;
+      --panel: #121316;
+      --panel-2: #17191d;
+      --panel-3: #1d1f24;
+      --line: rgba(255, 140, 66, 0.18);
+      --line-strong: rgba(255, 140, 66, 0.35);
+      --orange: #ff8c42;
+      --orange-2: #ffb266;
+      --red: #ff4757;
+      --red-2: #ef3b48;
+      --text: #f5f5f5;
+      --muted: #a3a3a3;
+      --muted-2: #6d6d6d;
+      --success: #2ed573;
+      --warning: #ffd166;
+      --shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+      --radius: 20px;
+      --radius-sm: 12px;
+      --radius-xs: 8px;
+      --font-heading: "Sora", "Inter", sans-serif;
+      --font-body: "Inter", "Sora", sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; }
+    body {
+      font-family: var(--font-body);
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255,140,66,.12), transparent 20%),
+        radial-gradient(circle at 85% 15%, rgba(255,71,87,.10), transparent 22%),
+        linear-gradient(180deg, #040404 0%, #0b0b0d 100%);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+    img { max-width: 100%; display: block; }
+    .hidden { display: none !important; }
+
+    .app-shell {
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .splash {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, rgba(255,140,66,.08), transparent 38%), #050505;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .splash::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 0%, rgba(255,140,66,.04) 50%, transparent 100%);
+      transform: translateX(-100%);
+      animation: sweep 4s ease infinite;
+    }
+
+    @keyframes sweep {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .splash-inner {
+      width: min(760px, 90vw);
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      display: grid;
+      place-items: center;
+      font-size: 44px;
+      background: linear-gradient(135deg, var(--orange), var(--red));
+      box-shadow: 0 0 30px rgba(255,140,66,.35);
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(255,140,66,.35); }
+      50% { transform: scale(1.05); box-shadow: 0 0 45px rgba(255,140,66,.55); }
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 8px 14px;
+      background: rgba(255,140,66,.08);
+      border: 1px solid var(--line);
+      color: var(--orange-2);
+      border-radius: 999px;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .splash h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(40px, 6vw, 74px);
+      line-height: 1;
+      letter-spacing: -0.06em;
+      font-weight: 800;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #fff 0%, #ffb266 30%, #ff4757 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .splash p {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 560px;
+      margin: 0 auto 28px;
+      line-height: 1.7;
+    }
+
+    .video-cinematic {
+      width: min(700px, 90vw);
+      aspect-ratio: 16 / 9;
+      margin: 0 auto 28px;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255,140,66,.1), rgba(0,0,0,.25)),
+        #17191d;
+      display: grid;
+      place-items: center;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .video-cinematic::before {
+      content: "▶";
+      position: absolute;
+      font-size: 58px;
+      color: rgba(255,255,255,.8);
+      filter: drop-shadow(0 0 18px rgba(255,140,66,.35));
+    }
+
+    .launch-btn,
+    .btn {
+      appearance: none;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+    }
+
+    .launch-btn {
+      background: linear-gradient(135deg, var(--orange), var(--red));
+      color: #120f0d;
+      font-family: var(--font-heading);
+      font-weight: 800;
+      padding: 18px 34px;
+      border-radius: 999px;
+      font-size: 16px;
+      letter-spacing: 0.04em;
+      box-shadow: 0 18px 36px rgba(255,140,66,.24);
+    }
+
+    .launch-btn:hover,
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--orange), var(--red));
+      color: #140d0a;
+      flex: 1;
+      box-shadow: 0 14px 28px rgba(255,140,66,.18);
+    }
+
+    .btn.ghost {
+      background: transparent;
+      border-color: var(--line);
+      color: var(--text);
+      flex: 1;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: rgba(0,0,0,.7);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
+    }
+
+    .profile-modal {
+      width: min(460px, 94vw);
+      background: linear-gradient(180deg, #121316, #0d0e12);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .profile-modal h2 {
+      font-family: var(--font-heading);
+      font-size: 28px;
+      margin-bottom: 8px;
+      letter-spacing: -0.04em;
+    }
+
+    .profile-modal p {
+      color: var(--muted);
+      margin-bottom: 22px;
+      line-height: 1.7;
+    }
+
+    .avatar-preview {
+      width: 104px;
+      height: 104px;
+      border-radius: 50%;
+      margin: 0 auto 18px;
+      border: 2px solid var(--line-strong);
+      background: #1a1d22;
+      display: grid;
+      place-items: center;
+      font-size: 42px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .avatar-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .field input[type="text"] {
+      width: 100%;
+      background: rgba(255,255,255,.02);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 16px;
+      outline: none;
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .field input[type="text"]:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(255,140,66,.12);
+    }
+
+    .field input[type="file"] {
+      width: 100%;
+      color: var(--muted);
+      background: rgba(255,255,255,.02);
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      cursor: pointer;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .dashboard {
+      display: none;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .dashboard.active { display: block; }
+
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0,1fr);
+      gap: 24px;
+      max-width: 1500px;
+      margin: 0 auto;
+    }
+
+    .sidebar {
+      background: linear-gradient(180deg, rgba(18,19,22,.96), rgba(11,11,13,.98));
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 22px 18px;
+      min-height: calc(100vh - 48px);
+      position: sticky;
+      top: 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 8px 18px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 14px;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--orange), var(--red));
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      box-shadow: 0 16px 32px rgba(255,140,66,.22);
+    }
+
+    .brand-name {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+      width: 100%;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid transparent;
+      border-radius: 14px;
+      padding: 12px 12px;
+      font-weight: 600;
+      transition: all .2s ease;
+    }
+
+    .nav-btn:hover {
+      background: rgba(255,255,255,.02);
+      border-color: var(--line);
+      color: var(--text);
+    }
+
+    .nav-btn.active {
+      background: rgba(255,140,66,.08);
+      color: var(--orange-2);
+      border-color: var(--line-strong);
+    }
+
+    .nav-icon { font-size: 18px; }
+
+    .side-profile {
+      margin-top: auto;
+      background: rgba(255,255,255,.02);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .avatar-user {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      border: 2px solid var(--orange);
+      object-fit: cover;
+      display: block;
+      margin: 0 auto 10px;
+      background: #1b1d20;
+    }
+
+    .user-name {
+      text-align: center;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .user-rank {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .mini-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .mini-box {
+      background: rgba(255,255,255,.02);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+
+    .mini-box strong {
+      display: block;
+      color: var(--orange-2);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .mini-box span {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .main {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .header-panel {
+      background: linear-gradient(180deg, rgba(18,19,22,.96), rgba(13,14,16,.98));
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 20px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-panel h2 {
+      font-family: var(--font-heading);
+      font-size: clamp(24px, 3vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.05em;
+    }
+
+    .header-panel p {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .header-metrics {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .metric-pill {
+      background: rgba(255,255,255,.02);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .metric-pill strong {
+      color: var(--orange-2);
+      font-weight: 800;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(18,19,22,.96), rgba(12,13,16,.98));
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 20px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .card-header h3 {
+      font-family: var(--font-heading);
+      font-size: 18px;
+      letter-spacing: -0.04em;
+    }
+
+    .ghost-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,140,66,.08);
+      border: 1px solid var(--line);
+      color: var(--orange-2);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .task-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 16px;
+    }
+
+    .task-card {
+      background: linear-gradient(180deg, rgba(255,255,255,.015), rgba(255,255,255,.025));
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      transition: transform .2s ease, border-color .2s ease;
+    }
+
+    .task-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--line-strong);
+    }
+
+    .task-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(255,140,66,.13), rgba(255,71,87,.12));
+      border: 1px solid var(--line);
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+
+    .task-title {
+      font-weight: 700;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .task-desc {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 14px;
+      min-height: 40px;
+    }
+
+    .task-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .reward {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,140,66,.08);
+      border: 1px solid rgba(255,140,66,.2);
+      color: var(--orange-2);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .task-btn {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-weight: 700;
+      transition: all .2s ease;
+    }
+
+    .task-btn:hover {
+      border-color: var(--line-strong);
+      background: rgba(255,140,66,.04);
+    }
+
+    .task-btn.done {
+      background: rgba(46,213,115,.08);
+      border-color: rgba(46,213,115,.35);
+      color: var(--success);
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 16px;
+    }
+
+    .module-card {
+      background: linear-gradient(180deg, rgba(255,255,255,.015), rgba(255,255,255,.02));
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .module-card h4 {
+      font-size: 18px;
+      font-family: var(--font-heading);
+      letter-spacing: -0.04em;
+    }
+
+    .module-card p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .module-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: auto;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.02);
+    }
+
+    .progress-bar span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--orange), var(--red));
+      border-radius: inherit;
+    }
+
+    .missions-list, .chat-list, .shop-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .mission-item, .chat-message, .shop-item {
+      background: rgba(255,255,255,.02);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .mission-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .mission-name {
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .mission-desc {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .chat-message {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .chat-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .chat-author {
+      font-weight: 700;
+      color: var(--orange-2);
+    }
+
+    .chat-text {
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    .shop-list {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    .shop-item {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .shop-item h4 {
+      font-size: 18px;
+      font-family: var(--font-heading);
+    }
+
+    .shop-item p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .shop-price {
+      font-weight: 800;
+      color: var(--orange-2);
+      font-size: 18px;
+    }
+
+    .shop-btn {
+      width: 100%;
+      background: linear-gradient(135deg, rgba(255,140,66,.12), rgba(255,71,87,.12));
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--text);
+      padding: 10px 12px;
+      font-weight: 700;
+    }
+
+    .input-wrap {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .input-wrap input {
+      flex: 1;
+      background: rgba(255,255,255,.02);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      outline: none;
+    }
+
+    .input-wrap button {
+      background: linear-gradient(135deg, var(--orange), var(--red));
+      color: #150d08;
+      border-radius: 12px;
+      border: none;
+      padding: 12px 18px;
+      font-weight: 800;
+    }
+
+    @media (max-width: 1000px) {
+      .dashboard-layout { grid-template-columns: 1fr; }
+      .sidebar { position: relative; top: 0; min-height: unset; }
+    }
+
+    @media (max-width: 620px) {
+      .dashboard { padding: 14px; }
+      .header-panel { padding: 16px; flex-direction: column; align-items: flex-start; }
+      .task-grid, .module-grid, .shop-list { grid-template-columns: 1fr; }
+      .modal-actions, .input-wrap { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div id="splash" class="splash">
+      <div class="splash-inner">
+        <div class="logo">💼</div>
+        <div class="tag">Business Simulation</div>
+        <h1>DSL ELITE</h1>
+        <p>Tu construis ton business digital, tu prouves ton pouvoir de vente, et tu montes en niveau dans le monde réel.</p>
+        <div class="video-cinematic" aria-label="Cinématique d'introduction"></div>
+        <button id="launchGame" class="launch-btn">Lancer le jeu</button>
+      </div>
+    </div>
+
+    <div id="profileModal" class="modal-backdrop hidden">
+      <div class="profile-modal">
+        <h2>Créer ton profil</h2>
+        <p>Avant d’ouvrir le bureau, choisis ton pseudo et ta photo de profil.</p>
+
+        <div class="avatar-preview" id="avatarPreview">👤</div>
+
+        <div class="field">
+          <label for="avatarInput">Photo de profil</label>
+          <input id="avatarInput" type="file" accept="image/*" />
+        </div>
+
+        <div class="field">
+          <label for="pseudoInput">Pseudo</label>
+          <input id="pseudoInput" type="text" maxlength="20" placeholder="Ex: Founder_01" />
+        </div>
+
+        <div class="modal-actions">
+          <button id="startGameBtn" class="btn primary">Commencer</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="dashboard" class="dashboard">
+      <div class="dashboard-layout">
+        <aside class="sidebar">
+          <div class="brand">
+            <div class="brand-mark">💼</div>
+            <div>
+              <div class="brand-name">DSL Elite</div>
+              <div class="brand-sub">Simulation</div>
+            </div>
+          </div>
+
+          <nav class="nav">
+            <button class="nav-btn active" data-view="bureau"><span class="nav-icon">📊</span> Bureau</button>
+            <button class="nav-btn" data-view="school"><span class="nav-icon">🎓</span> École</button>
+            <button class="nav-btn" data-view="missions"><span class="nav-icon">🎯</span> Missions</button>
+            <button class="nav-btn" data-view="socials"><span class="nav-icon">📱</span> Réseaux</button>
+            <button class="nav-btn" data-view="chat"><span class="nav-icon">💬</span> Tchat</button>
+            <button class="nav-btn" data-view="shop"><span class="nav-icon">🛒</span> Boutique</button>
+          </nav>
+
+          <div class="side-profile">
+            <img id="profileAvatarSidebar" class="avatar-user" alt="Avatar profil" />
+            <div id="profileNameSidebar" class="user-name">Founder</div>
+            <div id="profileRankSidebar" class="user-rank">Niveau 1</div>
+            <div class="mini-stats">
+              <div class="mini-box">
+                <strong id="xpStat">0</strong>
+                <span>XP</span>
+              </div>
+              <div class="mini-box">
+                <strong id="coinStat">0</strong>
+                <span>Pièces</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <main class="main">
+          <header class="header-panel">
+            <div>
+              <h2 id="pageTitle">Mon Bureau</h2>
+              <p id="pageSubtitle">Objectif : transformer tes réseaux en revenu réel.</p>
+            </div>
+
+            <div class="header-metrics">
+              <div class="metric-pill">Niveau <strong id="levelValue">1</strong></div>
+              <div class="metric-pill">Progression <strong id="progressValue">0%</strong></div>
+              <div class="metric-pill">Pièces <strong id="coinHeader">0</strong></div>
+            </div>
+          </header>
+
+          <section id="view-bureau" class="view active">
+            <div class="card">
+              <div class="card-header">
+                <h3>Tâches du jour</h3>
+                <span class="ghost-tag">3 missions</span>
+              </div>
+              <div id="taskDaily" class="task-grid"></div>
+            </div>
+
+            <div class="card" style="margin-top: 20px;">
+              <div class="card-header">
+                <h3>Tâches prioritaires</h3>
+                <span class="ghost-tag">3 priorités</span>
+              </div>
+              <div id="taskPriority" class="task-grid"></div>
+            </div>
+          </section>
+
+          <section id="view-school" class="view">
+            <div class="card">
+              <div class="card-header">
+                <h3>École DSL</h3>
+                <span class="ghost-tag">Apprentissage</span>
+              </div>
+              <div id="schoolModules" class="module-grid"></div>
+            </div>
+          </section>
+
+          <section id="view-missions" class="view">
+            <div class="card">
+              <div class="card-header">
+                <h3>Missions</h3>
+                <span class="ghost-tag">Objectifs</span>
+              </div>
+              <div id="missionsList" class="missions-list"></div>
+            </div>
+          </section>
+
+          <section id="view-socials" class="view">
+            <div class="card">
+              <div class="card-header">
+                <h3>Réseaux & validation</h3>
+                <span class="ghost-tag">Connexion</span>
+              </div>
+              <div id="socialsList" class="module-grid"></div>
+            </div>
+          </section>
+
+          <section id="view-chat" class="view">
+            <div class="card">
+              <div class="card-header">
+                <h3>Tchat communautaire</h3>
+                <span class="ghost-tag">Live</span>
+              </div>
+              <div id="chatList" class="chat-list"></div>
+              <div class="input-wrap">
+                <input id="chatInput" type="text" maxlength="200" placeholder="Écris un message..." />
+                <button id="sendMessageBtn">Envoyer</button>
+              </div>
+            </div>
+          </section>
+
+          <section id="view-shop" class="view">
+            <div class="card">
+              <div class="card-header">
+                <h3>Boutique</h3>
+                <span class="ghost-tag">Business</span>
+              </div>
+              <div id="shopList" class="shop-list"></div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'dsl-elite-business-sim';
+
+    const state = {
+      firstVisit: true,
+      profile: {
+        pseudo: '',
+        avatar: '',
+        level: 1,
+        xp: 0,
+        xpGoal: 100,
+        coins: 0
+      },
+      tasks: {
+        completed: {}
+      },
+      school: {
+        completed: {}
+      },
+      missions: {
+        completed: {}
+      },
+      socials: {
+        instagram: false,
+        tiktok: false,
+        youtube: false,
+        linkedin: false
+      },
+      chat: {
+        messages: [
+          { author: 'Coach DSL', text: 'Bienvenue dans l’aventure. La régularité augmente les ventes.' },
+          { author: 'Sofia', text: 'J’ai lancé ma première vidéo et j’ai déjà plus de vues que la semaine dernière.' },
+          { author: 'Karim', text: 'Le plus important reste de publier avec une vraie valeur, puis d’appeler à l’action.' }
+        ]
+      },
+      shop: {
+        owned: {}
+      }
+    };
+
+    const dailyTasks = [
+      {
+        id: 'video-post',
+        icon: '🎥',
+        title: 'Poster une vidéo',
+        desc: 'Publie une vidéo courte sur ton réseau social principal pour générer des vues.',
+        xp: 80,
+        coins: 35
+      },
+      {
+        id: 'story-post',
+        icon: '📸',
+        title: 'Poster une story',
+        desc: 'Publie une story avec un CTA clair pour générer des interactions et des messages.',
+        xp: 60,
+        coins: 25
+      },
+      {
+        id: 'engagement',
+        icon: '💬',
+        title: 'Engager les commentaires',
+        desc: 'Réponds aux commentaires et messages pour créer de la confiance.',
+        xp: 70,
+        coins: 30
+      }
+    ];
+
+    const priorityTasks = [
+      {
+        id: 'connect-socials',
+        icon: '🔗',
+        title: 'Connecter tes réseaux',
+        desc: 'Associe tes comptes sociaux pour que les tâches soient validées automatiquement.',
+        xp: 120,
+        coins: 50
+      },
+      {
+        id: 'watch-training',
+        icon: '🎓',
+        title: 'Regarder une vidéo d’apprentissage',
+        desc: 'Valide une vidéo de formation pour activer ton apprentissage et ton XP.',
+        xp: 90,
+        coins: 40
+      },
+      {
+        id: 'first-sale',
+        icon: '🛍️',
+        title: 'Obtenir une première vente',
+        desc: 'Transforme une interaction en achat pour booster ta progression réelle.',
+        xp: 200,
+        coins: 100
+      }
+    ];
+
+    const schoolModules = [
+      { id: 'module-1', title: 'Fondations DSL', desc: 'Comprendre le business digital et les leviers d’acquisition.', progress: 80 },
+      { id: 'module-2', title: 'Création de contenu', desc: 'Créer des vidéos et contenus qui attirent l’attention.', progress: 55 },
+      { id: 'module-3', title: 'Closing & ventes', desc: 'Transformer les conversations en ventes qualifiées.', progress: 35 },
+      { id: 'module-4', title: 'Scaling & automatisation', desc: 'Construire une machine de vente plus robuste.', progress: 15 }
+    ];
+
+    const missions = [
+      { id: 'mission-1', name: 'Publier 5 vidéos', desc: 'Atteindre 5 vidéos publiées en 7 jours.', reward: '+200 XP' },
+      { id: 'mission-2', name: 'Atteindre 500 abonnés', desc: 'Gagner 500 abonnés sur tes réseaux.', reward: '+300 XP' },
+      { id: 'mission-3', name: 'Une première vente', desc: 'Valider une vente réelle ou une conversion.', reward: '+400 XP' }
+    ];
+
+    const shopItems = [
+      { id: 'ads-pack', name: 'Pack Ads', desc: 'Ressource marketing avancée pour lancer des campagnes.', price: 120 },
+      { id: 'mr-template', name: 'Template MRR', desc: 'Modèles de vente & scripts prêts à utiliser.', price: 80 },
+      { id: 'script-kit', name: 'Kit de scripts', desc: 'Pack de scripts pour DM, stories et relances.', price: 60 }
+    ];
+
+    const socialCards = [
+      { id: 'instagram', name: 'Instagram', status: 'Connecté', value: true },
+      { id: 'tiktok', name: 'TikTok', status: 'À connecter', value: false },
+      { id: 'youtube', name: 'YouTube', status: 'À connecter', value: false },
+      { id: 'linkedin', name: 'LinkedIn', status: 'À connecter', value: false }
+    ];
+
+    function loadState() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return;
+      try {
+        const parsed = JSON.parse(saved);
+        Object.assign(state, parsed);
+      } catch (e) {
+        console.warn('Erreur lecture du state', e);
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function renderTasks() {
+      const buildTaskCard = (task, completed) => `
+        <article class="task-card">
+          <div class="task-icon">${task.icon}</div>
+          <div class="task-title">${task.title}</div>
+          <div class="task-desc">${task.desc}</div>
+          <div class="task-meta">
+            <span class="reward">+${task.xp} XP</span>
+            <span class="reward">+${task.coins} Pièces</span>
+          </div>
+          <button class="task-btn ${completed ? 'done' : ''}" data-task-id="${task.id}">
+            ${completed ? 'Tâche validée' : 'Valider la tâche'}
+          </button>
+        </article>
+      `;
+
+      const dailyHtml = dailyTasks.map(task => buildTaskCard(task, !!state.tasks.completed[task.id])).join('');
+      const priorityHtml = priorityTasks.map(task => buildTaskCard(task, !!state.tasks.completed[task.id])).join('');
+
+      document.getElementById('taskDaily').innerHTML = dailyHtml;
+      document.getElementById('taskPriority').innerHTML = priorityHtml;
+
+      document.querySelectorAll('.task-btn').forEach(button => {
+        button.addEventListener('click', () => handleTask(button.dataset.taskId));
+      });
+    }
+
+    function handleTask(taskId) {
+      const task = [...dailyTasks, ...priorityTasks].find(item => item.id === taskId);
+      if (!task || state.tasks.completed[taskId]) return;
+
+      state.tasks.completed[taskId] = true;
+      state.profile.xp += task.xp;
+      state.profile.coins += task.coins;
+
+      while (state.profile.xp >= state.profile.xpGoal) {
+        state.profile.xp -= state.profile.xpGoal;
+        state.profile.level += 1;
+        state.profile.xpGoal = Math.round(state.profile.xpGoal * 1.22);
+      }
+
+      saveState();
+      renderTasks();
+      updateProfileUI();
+    }
+
+    function renderSchool() {
+      const html = schoolModules.map(module => `
+        <article class="module-card">
+          <div class="ghost-tag">Module</div>
+          <h4>${module.title}</h4>
+          <p>${module.desc}</p>
+          <div class="progress-bar"><span style="width:${module.progress}%" ></span></div>
+          <div class="module-meta">
+            <span>Progression</span>
+            <strong>${module.progress}%</strong>
+          </div>
+        </article>
+      `).join('');
+
+      document.getElementById('schoolModules').innerHTML = html;
+    }
+
+    function renderMissions() {
+      const html = missions.map(mission => `
+        <div class="mission-item">
+          <div>
+            <div class="mission-name">${mission.name}</div>
+            <div class="mission-desc">${mission.desc}</div>
+          </div>
+          <div class="ghost-tag">${mission.reward}</div>
+        </div>
+      `).join('');
+      document.getElementById('missionsList').innerHTML = html;
+    }
+
+    function renderSocials() {
+      const html = socialCards.map(social => `
+        <article class="module-card">
+          <div class="ghost-tag">${social.name}</div>
+          <h4>${social.value ? 'Connecté' : 'À connecter'}</h4>
+          <p>${social.value ? 'Le réseau est validé et les tâches peuvent être synchronisées.' : 'Connecte ton compte pour valider automatiquement les actions réelles.'}</p>
+          <div class="module-meta">
+            <span>${social.status}</span>
+            <button class="btn ghost" data-social="${social.id}">${social.value ? 'Vérifié' : 'Connecter'}</button>
+          </div>
+        </article>
+      `).join('');
+
+      document.getElementById('socialsList').innerHTML = html;
+      document.querySelectorAll('[data-social]').forEach(button => {
+        button.addEventListener('click', () => toggleSocial(button.dataset.social));
+      });
+    }
+
+    function toggleSocial(id) {
+      state.socials[id] = !state.socials[id];
+      saveState();
+      renderSocials();
+    }
+
+    function renderChat() {
+      const html = state.chat.messages.map(msg => `
+        <div class="chat-message">
+          <div class="chat-head">
+            <span class="chat-author">${msg.author}</span>
+            <span>maintenant</span>
+          </div>
+          <div class="chat-text">${msg.text}</div>
+        </div>
+      `).join('');
+      document.getElementById('chatList').innerHTML = html;
+    }
+
+    function renderShop() {
+      const html = shopItems.map(item => `
+        <article class="shop-item">
+          <div class="ghost-tag">Produit</div>
+          <h4>${item.name}</h4>
+          <p>${item.desc}</p>
+          <div class="shop-price">${item.price} €</div>
+          <button class="shop-btn" data-shop-item="${item.id}">Acheter</button>
+        </article>
+      `).join('');
+
+      document.getElementById('shopList').innerHTML = html;
+      document.querySelectorAll('[data-shop-item]').forEach(button => {
+        button.addEventListener('click', () => handleShopPurchase(button.dataset.shopItem));
+      });
+    }
+
+    function handleShopPurchase(itemId) {
+      const item = shopItems.find(entry => entry.id === itemId);
+      if (!item) return;
+      state.shop.owned[itemId] = true;
+      saveState();
+      renderShop();
+      alert(`${item.name} ajouté à ton arsenal Business.`);
+    }
+
+    function updateProfileUI() {
+      const profileName = document.getElementById('profileNameSidebar');
+      const profileRank = document.getElementById('profileRankSidebar');
+      const avatarSidebar = document.getElementById('profileAvatarSidebar');
+      const xpStat = document.getElementById('xpStat');
+      const coinStat = document.getElementById('coinStat');
+      const levelValue = document.getElementById('levelValue');
+      const progressValue = document.getElementById('progressValue');
+      const coinHeader = document.getElementById('coinHeader');
+
+      profileName.textContent = state.profile.pseudo || 'Founder';
+      profileRank.textContent = `Niveau ${state.profile.level}`;
+      xpStat.textContent = state.profile.xp;
+      coinStat.textContent = state.profile.coins;
+      levelValue.textContent = state.profile.level;
+      coinHeader.textContent = state.profile.coins;
+
+      const pct = Math.min(100, Math.round((state.profile.xp / state.profile.xpGoal) * 100));
+      progressValue.textContent = `${pct}%`;
+
+      if (state.profile.avatar) {
+        avatarSidebar.src = state.profile.avatar;
+      } else {
+        avatarSidebar.src = '';
+      }
+    }
+
+    function showView(name) {
+      document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+      document.getElementById(`view-${name}`).classList.add('active');
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.view === name);
+      });
+
+      const map = {
+        bureau: { title: 'Mon Bureau', subtitle: 'Objectif : transformer tes réseaux en revenu réel.' },
+        school: { title: 'École DSL', subtitle: 'Mon parcours d’apprentissage et de montage de business.' },
+        missions: { title: 'Missions', subtitle: 'Des objectifs concrets pour accélérer ta progression.' },
+        socials: { title: 'Réseaux', subtitle: 'Vérifie et connecte tes outils de growth.' },
+        chat: { title: 'Tchat', subtitle: 'Discute avec la communauté et partage les victoires.' },
+        shop: { title: 'Boutique', subtitle: 'Ressources business et modules utiles pour gagner.' }
+      };
+
+      const selected = map[name] || map.bureau;
+      document.getElementById('pageTitle').textContent = selected.title;
+      document.getElementById('pageSubtitle').textContent = selected.subtitle;
+    }
+
+    function showDashboard() {
+      document.getElementById('splash').classList.add('hidden');
+      document.getElementById('dashboard').classList.add('active');
+      updateProfileUI();
+      renderTasks();
+      renderSchool();
+      renderMissions();
+      renderSocials();
+      renderChat();
+      renderShop();
+      showView('bureau');
+    }
+
+    function openProfileModal() {
+      document.getElementById('profileModal').classList.remove('hidden');
+    }
+
+    function startGame() {
+      const pseudo = document.getElementById('pseudoInput').value.trim();
+      if (!pseudo || pseudo.length < 3) {
+        alert('Choisis un pseudo valide (3 caractères minimum).');
+        return;
+      }
+
+      state.profile.pseudo = pseudo;
+      state.firstVisit = false;
+
+      const file = document.getElementById('avatarInput').files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          state.profile.avatar = e.target.result;
+          saveState();
+          showDashboard();
+          document.getElementById('profileModal').classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+      } else {
+        saveState();
+        showDashboard();
+        document.getElementById('profileModal').classList.add('hidden');
+      }
+    }
+
+    document.getElementById('launchGame').addEventListener('click', () => {
+      if (state.firstVisit === false) {
+        showDashboard();
+      } else {
+        openProfileModal();
+      }
+    });
+
+    document.getElementById('startGameBtn').addEventListener('click', startGame);
+    document.getElementById('avatarInput').addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById('avatarPreview').innerHTML = `<img src="${e.target.result}" alt="photo de profil" />`;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('sendMessageBtn').addEventListener('click', () => {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+      state.chat.messages.push({ author: state.profile.pseudo || 'Toi', text });
+      input.value = '';
+      saveState();
+      renderChat();
+    });
+
+    document.querySelectorAll('.nav-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        showView(button.dataset.view);
+      });
+    });
+
+    loadState();
+
+    if (state.firstVisit === false) {
+      showDashboard();
+    }
+  </script>
+</body>
+</html>
