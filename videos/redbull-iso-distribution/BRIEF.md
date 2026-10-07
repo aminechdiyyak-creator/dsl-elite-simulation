@@ -26,5 +26,6 @@ Pièce de portfolio qui doit impressionner : zooms, illustrations, animations �
 ## Notes
 
 - Pas de logo officiel (taureaux) — canette stylisée, mention « Concept — non affilié à Red Bull ».
-- Pas de musique (aucune source audio disponible hors-ligne) — silence assumé, proposer une bande-son ensuite.
+- Voix off française ajoutée (Kokoro TTS via `hyperframes tts`, voix `ff_siwis`), 8 répliques calées sur les scènes, dans assets/vo/. Flora et Google TTS indisponibles dans cet environnement (pas de connecteur / pas d'identifiants).
+- Pas de musique pour l'instant.
 - GSAP vendorisé dans vendor/ (CDN bloqué dans cet environnement).
