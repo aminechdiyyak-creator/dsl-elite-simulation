@@ -1,0 +1,1230 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Red Bull — Isometric Distribution</title>
+    <script src="vendor/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0a1433;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: "Space Mono", monospace;
+        color: #f2f4fa;
+      }
+
+      /* ---------- shared background (not a clip) ---------- */
+      #bg {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 50% 45%, #1a2c63 0%, #0f1c45 48%, #080f2a 100%);
+        overflow: hidden;
+      }
+      #ghost {
+        position: absolute;
+        left: 0;
+        top: 380px;
+        width: 3600px;
+        font-family: "Archivo Black", sans-serif;
+        font-size: 300px;
+        line-height: 1;
+        white-space: nowrap;
+        color: #ffffff;
+        opacity: 0.035;
+      }
+      #bg-glow {
+        position: absolute;
+        left: 560px;
+        top: 140px;
+        width: 800px;
+        height: 800px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 201, 6, 0.1) 0%, rgba(255, 201, 6, 0) 65%);
+      }
+
+      /* ---------- camera ---------- */
+      #cam {
+        position: absolute;
+        inset: 0;
+      }
+      #world {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1920px;
+        height: 1080px;
+      }
+      #world svg {
+        position: absolute;
+        left: 0;
+        top: 0;
+        overflow: visible;
+      }
+
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+
+      /* ---------- HUD ---------- */
+      .panel {
+        position: absolute;
+        left: 96px;
+        bottom: 96px;
+        width: 760px;
+        padding: 30px 40px 34px;
+        border-radius: 20px;
+        background: rgba(8, 15, 40, 0.88);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: flex-start;
+        gap: 30px;
+      }
+      .panel.right {
+        left: auto;
+        right: 96px;
+      }
+      .num {
+        display: block;
+        font-family: "Archivo Black", sans-serif;
+        font-size: 92px;
+        line-height: 0.9;
+        color: #ffc906;
+      }
+      .ptext {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding-top: 4px;
+      }
+      .ptitle {
+        display: block;
+        font-family: "Archivo Black", sans-serif;
+        font-size: 56px;
+        line-height: 1;
+        letter-spacing: 0.01em;
+        color: #f2f4fa;
+      }
+      .psub {
+        display: block;
+        font-size: 24px;
+        line-height: 1.35;
+        color: #c9d3ec;
+      }
+
+      #progress {
+        position: absolute;
+        left: 50%;
+        top: 56px;
+        width: 1000px;
+        margin-left: -500px;
+        padding: 18px 30px 20px;
+        border-radius: 999px;
+        background: rgba(8, 15, 40, 0.82);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .steps {
+        display: flex;
+        justify-content: space-between;
+        font-size: 20px;
+        letter-spacing: 0.14em;
+        color: #c9d3ec;
+      }
+      .steps span {
+        display: block;
+      }
+      .track {
+        position: relative;
+        margin-top: 12px;
+        height: 4px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.14);
+        overflow: hidden;
+      }
+      #track-fill {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: #ffc906;
+        transform-origin: 0% 50%;
+      }
+
+      #wide-title {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 70px;
+        text-align: center;
+        font-family: "Archivo Black", sans-serif;
+        font-size: 76px;
+        line-height: 1;
+        color: #f2f4fa;
+      }
+      #wide-title-wrap {
+        position: absolute;
+        left: 50%;
+        top: 40px;
+        width: 860px;
+        margin-left: -430px;
+        height: 112px;
+        border-radius: 24px;
+        background: rgba(8, 15, 40, 0.86);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      #wide-title-wrap span {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding-top: 26px;
+        font-family: "Archivo Black", sans-serif;
+        font-size: 60px;
+        line-height: 1;
+        color: #f2f4fa;
+      }
+      .stat {
+        position: absolute;
+        bottom: 56px;
+        width: 470px;
+        padding: 22px 32px 26px;
+        border-radius: 20px;
+        background: rgba(8, 15, 40, 0.88);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      #stat-a {
+        left: 96px;
+      }
+      #stat-b {
+        right: 96px;
+        text-align: right;
+      }
+      .stat-num {
+        display: block;
+        font-family: "Archivo Black", sans-serif;
+        font-size: 76px;
+        line-height: 1;
+        white-space: nowrap;
+        color: #ffc906;
+      }
+      .stat-lbl {
+        display: block;
+        margin-top: 10px;
+        font-size: 26px;
+        letter-spacing: 0.06em;
+        color: #c9d3ec;
+      }
+
+      #toi {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 470px;
+        text-align: center;
+      }
+      #toi span {
+        display: inline-block;
+        padding: 22px 54px 26px;
+        border-radius: 22px;
+        background: rgba(8, 15, 40, 0.88);
+        font-family: "Archivo Black", sans-serif;
+        font-size: 104px;
+        line-height: 1;
+        color: #f2f4fa;
+      }
+      #toi em {
+        font-style: normal;
+        color: #ffc906;
+      }
+
+      /* ---------- opening ---------- */
+      #open-inner {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 70% 50%, #1d3274 0%, #0c1740 55%, #070d26 100%);
+      }
+      #open-copy {
+        position: absolute;
+        left: 150px;
+        top: 330px;
+        width: 900px;
+      }
+      .oline {
+        display: block;
+        font-family: "Archivo Black", sans-serif;
+        font-size: 124px;
+        line-height: 1.06;
+        color: #f2f4fa;
+      }
+      .oline em {
+        font-style: normal;
+        color: #ffc906;
+      }
+      #open-sub {
+        display: block;
+        margin-top: 34px;
+        font-size: 30px;
+        letter-spacing: 0.2em;
+        color: #c9d3ec;
+      }
+      #open-can-wrap {
+        position: absolute;
+        left: 1180px;
+        top: 150px;
+        width: 360px;
+        height: 780px;
+      }
+      #open-can-wrap svg,
+      #end-can-wrap svg {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+      }
+
+      /* ---------- end card ---------- */
+      #end-inner {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 50% 42%, #22398a 0%, #0f1c4a 50%, #070d26 100%);
+      }
+      #end-wings {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: visible;
+      }
+      #end-can-wrap {
+        position: absolute;
+        left: 830px;
+        top: 120px;
+        width: 260px;
+        height: 564px;
+      }
+      #end-copy {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 760px;
+        text-align: center;
+      }
+      #end-tag {
+        display: block;
+        font-family: "Archivo Black", sans-serif;
+        font-size: 88px;
+        line-height: 1;
+        color: #f2f4fa;
+      }
+      #end-tag em {
+        font-style: normal;
+        color: #ffc906;
+      }
+      #end-sub {
+        display: block;
+        margin-top: 26px;
+        font-size: 28px;
+        letter-spacing: 0.22em;
+        color: #c9d3ec;
+      }
+      #end-legal {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 46px;
+        text-align: center;
+        font-size: 18px;
+        letter-spacing: 0.08em;
+        color: #9aa7cc;
+      }
+
+      #flash {
+        position: absolute;
+        inset: 0;
+        background: #fff9e6;
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="36"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- Shared background: not a clip -->
+      <div id="bg">
+        <div id="bg-glow"></div>
+        <div id="ghost">DONNE DES AILES · DONNE DES AILES ·</div>
+      </div>
+
+      <!-- Isometric world under one virtual camera: not a clip -->
+      <div id="cam">
+        <div id="world" data-layout-allow-overflow>
+          <svg id="iso" width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+            <defs id="defs"></defs>
+          </svg>
+        </div>
+      </div>
+
+      <!-- HUD: progress rail -->
+      <section id="hud-progress" class="clip" data-start="4.4" data-duration="25" data-track-index="2">
+        <div id="progress" data-layout-allow-occlusion>
+          <div class="steps">
+            <span id="st1">USINE</span>
+            <span id="st2">ENTREPÔT</span>
+            <span id="st3">ROUTE</span>
+            <span id="st4">MAGASIN</span>
+            <span id="st5">TOI</span>
+          </div>
+          <div class="track"><div id="track-fill"></div></div>
+        </div>
+      </section>
+
+      <!-- HUD: stations -->
+      <section id="hud1" class="clip" data-start="4.6" data-duration="4.4" data-track-index="3">
+        <div class="panel" id="p1" data-layout-allow-occlusion>
+          <span class="num">01</span>
+          <div class="ptext">
+            <span class="ptitle">PRODUCTION</span>
+            <span class="psub">Remplie et scellée en Autriche et en Suisse.</span>
+          </div>
+        </div>
+      </section>
+      <section id="hud2" class="clip" data-start="10.9" data-duration="3.1" data-track-index="3">
+        <div class="panel" id="p2" data-layout-allow-occlusion>
+          <span class="num">02</span>
+          <div class="ptext">
+            <span class="ptitle">STOCKAGE</span>
+            <span class="psub">Palettisée, filmée, prête à partir.</span>
+          </div>
+        </div>
+      </section>
+      <section id="hud3" class="clip" data-start="15.1" data-duration="3.9" data-track-index="3">
+        <div class="panel right" id="p3" data-layout-allow-occlusion>
+          <span class="num">03</span>
+          <div class="ptext">
+            <span class="ptitle">TRANSPORT</span>
+            <span class="psub">Par la route et par la mer, vers plus de 175 pays.</span>
+          </div>
+        </div>
+      </section>
+      <section id="hud4" class="clip" data-start="20.7" data-duration="3.3" data-track-index="3">
+        <div class="panel" id="p4" data-layout-allow-occlusion>
+          <span class="num">04</span>
+          <div class="ptext">
+            <span class="ptitle">POINT DE VENTE</span>
+            <span class="psub">Du frigo du coin aux plus grands événements.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- HUD: wide network reveal -->
+      <section id="hud-wide" class="clip" data-start="25.9" data-duration="3.5" data-track-index="3">
+        <div id="wide-title-wrap"><span id="wide-title-text">UN RÉSEAU MONDIAL</span></div>
+        <div class="stat" id="stat-a">
+          <span class="stat-num"><span id="cnt-a">0</span>+</span>
+          <span class="stat-lbl">PAYS</span>
+        </div>
+        <div class="stat" id="stat-b">
+          <span class="stat-num"><span id="cnt-b">0</span> MRD+</span>
+          <span class="stat-lbl">CANETTES PAR AN</span>
+        </div>
+      </section>
+
+      <!-- HUD: final push -->
+      <section id="hud-toi" class="clip" data-start="29.5" data-duration="1.7" data-track-index="3">
+        <div id="toi"><span id="toi-text" data-layout-allow-occlusion>… jusqu’à <em>toi.</em></span></div>
+      </section>
+
+      <!-- Opening -->
+      <section id="open" class="clip" data-start="0" data-duration="3.7" data-track-index="4">
+        <div id="open-inner">
+          <div id="open-copy">
+            <span class="oline" id="ol1">Chaque canette</span>
+            <span class="oline" id="ol2">a un <em>voyage.</em></span>
+            <span id="open-sub">SUIVONS-LA →</span>
+          </div>
+          <div id="open-can-wrap"><svg id="open-can" viewBox="0 0 300 650"></svg></div>
+        </div>
+      </section>
+
+      <!-- End card -->
+      <section id="end" class="clip" data-start="31.2" data-duration="4.8" data-track-index="4">
+        <div id="end-inner">
+          <svg id="end-wings" viewBox="0 0 1920 1080"></svg>
+          <div id="end-can-wrap"><svg id="end-can" viewBox="0 0 300 650"></svg></div>
+          <div id="end-copy">
+            <span id="end-tag">Red Bull <em>donne des ailes.</em></span>
+            <span id="end-sub">DE L’USINE À TA MAIN</span>
+          </div>
+          <div id="end-legal">Concept motion design · Projet non officiel, non affilié à Red Bull GmbH</div>
+        </div>
+      </section>
+
+      <div id="flash"></div>
+    </div>
+
+    <script>
+      (function () {
+        const tl = gsap.timeline({ paused: true });
+        const NS = "http://www.w3.org/2000/svg";
+        const DUR = 36;
+
+        // ---------------- isometric projection ----------------
+        const U = 30;
+        const CX = U * 0.8660254;
+        const CY = U * 0.5;
+        const OX = 752;
+        const OY = 96;
+        const P = (x, y, z = 0) => [OX + (x - y) * CX, OY + (x + y) * CY - z * U];
+
+        // seeded PRNG (deterministic)
+        let seed = 20260107;
+        const rand = () => {
+          seed |= 0;
+          seed = (seed + 0x6d2b79f5) | 0;
+          let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+
+        const svg = document.getElementById("iso");
+        const defs = document.getElementById("defs");
+
+        function el(tag, attrs, parent) {
+          const e = document.createElementNS(NS, tag);
+          for (const k in attrs) e.setAttribute(k, attrs[k]);
+          if (parent) parent.appendChild(e);
+          return e;
+        }
+        const pts = (arr) => arr.map((p) => P(p[0], p[1], p[2]).map((v) => v.toFixed(2)).join(",")).join(" ");
+        function poly(parent, arr, fill, extra = {}) {
+          return el("polygon", { points: pts(arr), fill, stroke: fill, "stroke-width": 0.6, "stroke-linejoin": "round", ...extra }, parent);
+        }
+        function shade(hex, f) {
+          const n = parseInt(hex.slice(1), 16);
+          let r = (n >> 16) & 255,
+            g = (n >> 8) & 255,
+            b = n & 255;
+          if (f >= 1) {
+            r += (255 - r) * (f - 1);
+            g += (255 - g) * (f - 1);
+            b += (255 - b) * (f - 1);
+          } else {
+            r *= f;
+            g *= f;
+            b *= f;
+          }
+          return "#" + [r, g, b].map((v) => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, "0")).join("");
+        }
+        function box(parent, x, y, z, w, d, h, col) {
+          const g = el("g", {}, parent);
+          const [top, left, right] = Array.isArray(col) ? col : [shade(col, 1.16), col, shade(col, 0.7)];
+          poly(g, [[x + w, y, z], [x + w, y + d, z], [x + w, y + d, z + h], [x + w, y, z + h]], right);
+          poly(g, [[x, y + d, z], [x + w, y + d, z], [x + w, y + d, z + h], [x, y + d, z + h]], left);
+          poly(g, [[x, y, z + h], [x + w, y, z + h], [x + w, y + d, z + h], [x, y + d, z + h]], top);
+          return g;
+        }
+        const faceY = (pa, x0, x1, y, z0, z1, fill, ex) => poly(pa, [[x0, y, z0], [x1, y, z0], [x1, y, z1], [x0, y, z1]], fill, ex);
+        const faceX = (pa, x, y0, y1, z0, z1, fill, ex) => poly(pa, [[x, y0, z0], [x, y1, z0], [x, y1, z1], [x, y0, z1]], fill, ex);
+        const topRect = (pa, x0, y0, x1, y1, z, fill, ex) => poly(pa, [[x0, y0, z], [x1, y0, z], [x1, y1, z], [x0, y1, z]], fill, ex);
+        // diegetic signage painted into the world: the camera deliberately slides HUD panels over it
+        const SIGN = { "data-layout-allow-overlap": "", "data-layout-allow-occlusion": "" };
+        function textY(pa, x, y, z, str, size, fill) {
+          const [sx, sy] = P(x, y, z);
+          const t = el("text", { transform: `matrix(0.8660254,0.5,0,1,${sx.toFixed(2)},${sy.toFixed(2)})`, "font-size": size, fill, "font-family": "Archivo Black", ...SIGN }, pa);
+          t.textContent = str;
+          return t;
+        }
+        function textX(pa, x, y, z, str, size, fill) {
+          const [sx, sy] = P(x, y, z);
+          const t = el("text", { transform: `matrix(0.8660254,-0.5,0,1,${sx.toFixed(2)},${sy.toFixed(2)})`, "font-size": size, fill, "font-family": "Archivo Black", ...SIGN }, pa);
+          t.textContent = str;
+          return t;
+        }
+        let gid = 0;
+        function cylGrad(col) {
+          const id = "cg" + gid++;
+          const g = el("linearGradient", { id, x1: 0, x2: 1, y1: 0, y2: 0 }, defs);
+          [[0, shade(col, 0.86)], [0.3, shade(col, 1.2)], [0.55, col], [1, shade(col, 0.55)]].forEach(([o, c]) => el("stop", { offset: o, "stop-color": c }, g));
+          return `url(#${id})`;
+        }
+        function cylBody(pa, x, y, z, r, h, fill) {
+          const [bx, by] = P(x, y, z);
+          const [tx, ty] = P(x, y, z + h);
+          const rx = 1.2247 * r * U,
+            ry = 0.7071 * r * U;
+          return el("path", { d: `M${tx - rx} ${ty} L${bx - rx} ${by} A${rx} ${ry} 0 0 0 ${bx + rx} ${by} L${tx + rx} ${ty} A${rx} ${ry} 0 0 1 ${tx - rx} ${ty} Z`, fill }, pa);
+        }
+        function cylinder(pa, x, y, z, r, h, col, bands = []) {
+          const g = el("g", {}, pa);
+          cylBody(g, x, y, z, r, h, cylGrad(col));
+          bands.forEach((b) => cylBody(g, x, y, b.z, r, b.h, cylGrad(b.col)));
+          const [tx, ty] = P(x, y, z + h);
+          el("ellipse", { cx: tx, cy: ty, rx: 1.2247 * r * U, ry: 0.7071 * r * U, fill: shade(col, 1.28) }, g);
+          return g;
+        }
+        // hexagonal screen hull of an iso prism (for clip paths)
+        function hull(x0, y0, z0, x1, y1, z1) {
+          return pts([[x0, y0, z1], [x1, y0, z1], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0], [x0, y1, z1]]);
+        }
+        let cid = 0;
+        function clipped(pa, points) {
+          const id = "cl" + cid++;
+          const cp = el("clipPath", { id }, defs);
+          el("polygon", { points }, cp);
+          return el("g", { "clip-path": `url(#${id})` }, pa);
+        }
+
+        // small can (screen-space glyph)
+        const canGrad = el("linearGradient", { id: "canBody", x1: 0, x2: 1, y1: 0, y2: 0 }, defs);
+        [[0, "#3459c4"], [0.47, "#1b3787"], [0.5, "#dfe4ee"], [0.78, "#f7f9fc"], [1, "#9ba6bb"]].forEach(([o, c]) => el("stop", { offset: o, "stop-color": c }, canGrad));
+        function smallCan(pa, sx, sy, s = 1) {
+          const g = el("g", { transform: `translate(${sx.toFixed(2)},${sy.toFixed(2)}) scale(${s})` }, pa);
+          el("path", { d: "M-5 -16 L-5 0 A5 2.4 0 0 0 5 0 L5 -16 Z", fill: "url(#canBody)" }, g);
+          el("ellipse", { cx: 0, cy: -16, rx: 5, ry: 2.4, fill: "#eef1f6" }, g);
+          el("ellipse", { cx: 0, cy: -16, rx: 3.3, ry: 1.4, fill: "#a9b2c4" }, g);
+          el("circle", { cx: 0, cy: -9, r: 2, fill: "#ffc906" }, g);
+          el("rect", { x: -4, y: -7.4, width: 8, height: 1.8, fill: "#e4002b" }, g);
+          return g;
+        }
+
+        // ---------------- palette ----------------
+        const K = {
+          slab: ["#1d2f66", "#16265a", "#0e1a40"],
+          grid: "#2b3f82",
+          road: "#121a3a",
+          roadEdge: "#3e5091",
+          pad: "#22367c",
+          silver: "#d9dee8",
+          white: "#eef1f7",
+          blue: "#2a4ca8",
+          red: "#e4002b",
+          yellow: "#ffc906",
+          dark: "#0c1330",
+          metal: "#3a4670",
+          wood: "#9a7448",
+          green: "#1f8a6a",
+          water: "#1b4ea6",
+        };
+
+        // ---------------- layers ----------------
+        const L = {};
+        ["shadow", "ground", "row1", "mini", "laneB", "laneA", "row2", "overlay"].forEach((k) => (L[k] = el("g", { id: "L-" + k }, svg)));
+
+        // floating shadow under the diorama
+        const shGrad = el("radialGradient", { id: "shGrad" }, defs);
+        el("stop", { offset: 0, "stop-color": "#000", "stop-opacity": 0.55 }, shGrad);
+        el("stop", { offset: 1, "stop-color": "#000", "stop-opacity": 0 }, shGrad);
+        el("ellipse", { cx: P(20, 12, -2)[0], cy: P(20, 12, -2)[1] + 30, rx: 1000, ry: 330, fill: "url(#shGrad)" }, L.shadow);
+
+        // ---------------- ground ----------------
+        const G = L.ground;
+        box(G, 0, 0, -1.2, 40, 24, 1.2, K.slab);
+        // slab rim highlight
+        el("polyline", { points: pts([[0, 24, 0], [0, 0, 0], [40, 0, 0]]), fill: "none", stroke: "#3c55a8", "stroke-width": 1.5 }, G);
+        el("polyline", { points: pts([[0, 24, 0], [40, 24, 0], [40, 0, 0]]), fill: "none", stroke: "#5772c9", "stroke-width": 2 }, G);
+        for (let i = 0; i <= 40; i += 2) el("line", { x1: P(i, 0)[0], y1: P(i, 0)[1], x2: P(i, 24)[0], y2: P(i, 24)[1], stroke: K.grid, "stroke-width": 1, opacity: 0.55 }, G);
+        for (let j = 0; j <= 24; j += 2) el("line", { x1: P(0, j)[0], y1: P(0, j)[1], x2: P(40, j)[0], y2: P(40, j)[1], stroke: K.grid, "stroke-width": 1, opacity: 0.55 }, G);
+
+        // water basin (port)
+        topRect(G, 0, 18, 13, 24, -0.35, K.water);
+        faceY(G, 0, 13, 18, -0.35, 0, "#122f6c");
+        const waves = el("g", { opacity: 0.55 }, G);
+        const waveLines = [];
+        for (let k = 0; k < 7; k++) {
+          const wy = 18.8 + k * 0.75;
+          const ln = el("line", { x1: P(0.4, wy, -0.34)[0], y1: P(0.4, wy, -0.34)[1], x2: P(12.6, wy, -0.34)[0], y2: P(12.6, wy, -0.34)[1], stroke: "#5f95ee", "stroke-width": 2, "stroke-linecap": "round", "stroke-dasharray": "10 26", "stroke-dashoffset": k * 7 }, waves);
+          waveLines.push(ln);
+        }
+
+        // roads
+        topRect(G, 27, 0, 30, 24, 0.01, K.road);
+        topRect(G, 0, 12, 40, 15, 0.012, K.road);
+        [12.12, 14.88].forEach((yy) => el("line", { x1: P(0, yy, 0.02)[0], y1: P(0, yy, 0.02)[1], x2: P(40, yy, 0.02)[0], y2: P(40, yy, 0.02)[1], stroke: K.roadEdge, "stroke-width": 1.6 }, G));
+        [27.12, 29.88].forEach((xx) => {
+          [[0, 12], [15, 24]].forEach(([a, b]) => el("line", { x1: P(xx, a, 0.02)[0], y1: P(xx, a, 0.02)[1], x2: P(xx, b, 0.02)[0], y2: P(xx, b, 0.02)[1], stroke: K.roadEdge, "stroke-width": 1.6 }, G));
+        });
+        const dashA = el("line", { x1: P(0, 13.5, 0.03)[0], y1: P(0, 13.5, 0.03)[1], x2: P(40, 13.5, 0.03)[0], y2: P(40, 13.5, 0.03)[1], stroke: K.yellow, "stroke-width": 2, "stroke-dasharray": "14 16", opacity: 0.85 }, G);
+        [[0, 11], [16, 24]].forEach(([a, b]) => el("line", { x1: P(28.5, a, 0.03)[0], y1: P(28.5, a, 0.03)[1], x2: P(28.5, b, 0.03)[0], y2: P(28.5, b, 0.03)[1], stroke: K.yellow, "stroke-width": 2, "stroke-dasharray": "14 16", opacity: 0.85 }, G));
+        for (let i = 0; i < 6; i++) topRect(G, 27.3 + i * 0.47, 11.1, 27.55 + i * 0.47, 11.8, 0.03, "#c9d2ea");
+        for (let i = 0; i < 6; i++) topRect(G, 27.3 + i * 0.47, 15.2, 27.55 + i * 0.47, 15.9, 0.03, "#c9d2ea");
+
+        // pads
+        box(G, 1, 1, 0, 14.6, 10, 0.15, K.pad);
+        box(G, 15.6, 1, 0, 10.8, 10, 0.15, K.pad);
+        box(G, 31, 1, 0, 8.4, 10, 0.15, K.pad);
+        box(G, 0, 15.6, 0, 13, 2.4, 0.15, "#2a3c7e");
+        box(G, 14, 16.3, 0, 12, 7.2, 0.15, "#1f2f66");
+        box(G, 31, 16.3, 0, 8.4, 7.2, 0.15, K.pad);
+
+        // ---------------- trees ----------------
+        function tree(pa, x, y, s = 1) {
+          const g = el("g", {}, pa);
+          box(g, x - 0.08, y - 0.08, 0.15, 0.16, 0.16, 0.5 * s, "#5a3d28");
+          const [cx, cy] = P(x, y, 0.15 + 0.95 * s);
+          el("circle", { cx, cy, r: 13 * s, fill: K.green }, g);
+          el("circle", { cx: cx - 4 * s, cy: cy - 4 * s, r: 7 * s, fill: "#36a983" }, g);
+          return g;
+        }
+
+        // ================= ROW 1 =================
+        const R1 = L.row1;
+        tree(R1, 1.8, 1.8, 1.1);
+        tree(R1, 13.6, 2.0, 1);
+
+        // --- factory ---
+        cylinder(R1, 3, 3, 0.15, 1.1, 4.6, K.silver, [{ z: 3.3, h: 0.45, col: K.red }]);
+        cylinder(R1, 5.7, 2.4, 0.15, 1.1, 4.6, K.silver, [{ z: 3.3, h: 0.45, col: K.red }]);
+        box(R1, 3.6, 3.9, 3.4, 2.4, 0.3, 0.3, K.metal);
+        box(R1, 2.5, 5, 0.15, 7, 4.6, 3.0, K.silver);
+        for (let i = 0; i < 3; i++) box(R1, 3.1 + i * 2.15, 5.5, 3.15, 1.5, 3.5, 0.45, ["#6d95ea", "#2f50aa", "#203b86"]);
+        textY(R1, 3.1, 9.6, 1.45, "USINE 01", 30, "#1d2f66");
+        faceY(R1, 2.5, 9.5, 9.6, 2.62, 2.8, K.red);
+        faceX(R1, 9.5, 7.0, 8.6, 0.15, 1.7, "#141c3d");
+        // chimney
+        box(R1, 7.5, 5.7, 3.15, 0.8, 0.8, 2.6, K.white);
+        faceY(R1, 7.5, 8.3, 6.5, 4.6, 5.0, K.red);
+        faceX(R1, 8.3, 5.7, 6.5, 4.6, 5.0, "#a8001f");
+        topRect(R1, 7.62, 5.82, 8.18, 6.38, 5.76, "#1a1f33");
+        const steam = el("g", {}, R1);
+        const steamPuffs = [];
+        const [stx, sty] = P(7.9, 6.1, 5.8);
+        for (let i = 0; i < 6; i++) steamPuffs.push(el("circle", { cx: stx, cy: sty, r: 14, fill: "#eef2fb", opacity: 0 }, steam));
+        // conveyor
+        for (let i = 0; i < 5; i++) box(R1, 9.8 + i * 1.6, 7.6, 0.15, 0.2, 0.2, 0.6, "#29335a");
+        box(R1, 9.5, 7.2, 0.75, 7.2, 1.2, 0.3, ["#1b2242", "#3a4670", "#29335a"]);
+        for (let x = 9.8; x < 16.7; x += 0.5) el("line", { x1: P(x, 7.25, 1.05)[0], y1: P(x, 7.25, 1.05)[1], x2: P(x, 8.35, 1.05)[0], y2: P(x, 8.35, 1.05)[1], stroke: "#2f3a66", "stroke-width": 1 }, R1);
+        const beltClip = clipped(R1, hull(9.5, 7.2, 1.05, 16.7, 8.4, 2.4));
+        const beltCans = el("g", {}, beltClip);
+        const BELT_SPEED = 0.55;
+        for (let x = 9.5 - BELT_SPEED * DUR - 1; x < 16.8; x += 1.05) {
+          [7.55, 8.05].forEach((yy) => {
+            const [sx, sy] = P(x, yy, 1.05);
+            smallCan(beltCans, sx, sy, 0.95);
+          });
+        }
+
+        // --- warehouse ---
+        box(R1, 17, 2, 0.15, 8, 5, 3.4, "#2b4da6");
+        box(R1, 18.3, 2.8, 3.55, 1.1, 1.1, 0.5, K.silver);
+        box(R1, 20.4, 3.2, 3.55, 1.1, 1.1, 0.5, K.silver);
+        box(R1, 23.0, 2.6, 3.55, 1.4, 0.9, 0.35, "#3d5fbf");
+        [[17.6, 19.3], [19.9, 21.6], [22.2, 23.9]].forEach(([a, b]) => {
+          faceY(R1, a, b, 7, 0.15, 2.2, "#0d1534");
+          for (let z = 0.45; z < 2.2; z += 0.35) el("line", { x1: P(a, 7, z)[0], y1: P(a, 7, z)[1], x2: P(b, 7, z)[0], y2: P(b, 7, z)[1], stroke: "#1e2a55", "stroke-width": 1 }, R1);
+        });
+        textY(R1, 17.6, 7, 3.0, "ENTREPÔT 02", 26, "#ffffff");
+        tree(R1, 25.8, 1.8, 1);
+
+        function pallet(pa, x, y, h) {
+          const g = el("g", {}, pa);
+          box(g, x, y, 0.15, 1.2, 1.2, 0.14, K.wood);
+          box(g, x + 0.05, y + 0.05, 0.29, 1.1, 1.1, h, ["#e3e8f1", "#2c51b8", "#1d3a8a"]);
+          el("line", { x1: P(x + 0.05, y + 1.15, 0.29 + h * 0.5)[0], y1: P(x + 0.05, y + 1.15, 0.29 + h * 0.5)[1], x2: P(x + 1.15, y + 1.15, 0.29 + h * 0.5)[0], y2: P(x + 1.15, y + 1.15, 0.29 + h * 0.5)[1], stroke: "#cfd8ef", "stroke-width": 1.2, opacity: 0.7 }, g);
+          el("circle", { cx: P(x + 0.6, y + 1.15, 0.29 + h * 0.5)[0], cy: P(x + 0.6, y + 1.15, 0.29 + h * 0.5)[1], r: 4, fill: K.yellow }, g);
+          return g;
+        }
+        const palletSlots = [
+          [21.8, 8.0, true], [23.2, 8.0, true], [17.4, 8.0], [18.8, 8.0], [20.2, 8.0], [17.4, 9.4], [18.8, 9.4], [20.2, 9.4],
+        ].sort((a, b) => a[0] + a[1] - (b[0] + b[1]));
+        const newPallets = [];
+        palletSlots.forEach(([x, y, pre]) => {
+          const g = pallet(R1, x, y, 0.85);
+          if (!pre) newPallets.push({ g, base: P(x + 0.6, y + 0.6, 0.15) });
+        });
+        // forklift
+        const fork = el("g", {}, R1);
+        box(fork, 21.8, 9.7, 0.2, 1.0, 0.8, 0.5, K.yellow);
+        box(fork, 21.85, 9.75, 0.7, 0.55, 0.7, 0.06, "#1c2340");
+        box(fork, 21.86, 10.36, 0.7, 0.06, 0.06, 0.6, "#1c2340");
+        box(fork, 22.34, 10.36, 0.7, 0.06, 0.06, 0.6, "#1c2340");
+        box(fork, 21.86, 9.76, 1.3, 0.56, 0.68, 0.06, "#1c2340");
+        box(fork, 22.8, 9.8, 0.2, 0.12, 0.6, 1.4, "#323b5e");
+        box(fork, 22.95, 9.7, 0.3, 0.9, 0.9, 0.6, ["#e3e8f1", "#2c51b8", "#1d3a8a"]);
+
+        // --- shop ---
+        tree(R1, 31.6, 1.7, 0.9);
+        box(R1, 32, 2.5, 0.15, 6, 4.5, 2.6, K.white);
+        box(R1, 32, 2.5, 2.75, 6, 4.5, 0.25, K.red);
+        faceY(R1, 32.6, 37.4, 7, 0.45, 2.15, "#0d1b48");
+        faceY(R1, 32.75, 37.25, 7, 0.55, 2.05, "#1a3a8f");
+        [1.05, 1.55].forEach((z) => el("line", { x1: P(32.75, 7, z)[0], y1: P(32.75, 7, z)[1], x2: P(37.25, 7, z)[0], y2: P(37.25, 7, z)[1], stroke: "#9fb6ee", "stroke-width": 1, opacity: 0.6 }, R1));
+        const fridgeCans = [];
+        [0.58, 1.08, 1.58].forEach((z) => {
+          for (let x = 33.0; x < 37.1; x += 0.42) {
+            const [sx, sy] = P(x, 7, z);
+            fridgeCans.push(smallCan(R1, sx, sy, 0.78));
+          }
+        });
+        for (let i = 0; i < 8; i++) {
+          const x0 = 32.6 + i * 0.6;
+          poly(R1, [[x0, 7, 2.3], [x0 + 0.6, 7, 2.3], [x0 + 0.6, 7.85, 1.98], [x0, 7.85, 1.98]], i % 2 ? K.white : K.red);
+        }
+        faceX(R1, 38, 2.85, 6.75, 1.45, 2.45, K.red);
+        textX(R1, 38, 6.45, 1.72, "MARKET", 26, "#ffffff");
+        cylinder(R1, 36.4, 4.2, 3.0, 0.75, 2.3, K.silver, [{ z: 3.0, h: 1.15, col: "#2448a8" }]);
+        const [sunx, suny] = P(36.4 + 0.53, 4.2 + 0.53, 4.15);
+        const roofSun = el("circle", { cx: sunx, cy: suny, r: 9, fill: K.yellow }, R1);
+
+        // ================= MINI (branch road) =================
+        const miniClip = clipped(L.mini, hull(27, 0, 0, 30, 11, 3));
+        const mini = el("g", {}, miniClip);
+        box(mini, 27.9, 0, 0.22, 0.95, 1.7, 0.45, "#2448a8");
+        box(mini, 28.0, 0.35, 0.67, 0.75, 1.0, 0.35, ["#d9dee8", "#18234a", "#121a38"]);
+        box(mini, 28.05, 0.25, 1.02, 0.65, 1.5, 0.55, ["#eef1f7", "#2850b8", "#c3cad8"]);
+        el("circle", { cx: P(28.38, 1.75, 1.3)[0], cy: P(28.38, 1.75, 1.3)[1], r: 5, fill: K.yellow }, mini);
+        [[0.3], [1.35]].forEach(([yy]) => el("ellipse", { cx: P(27.9, yy, 0.22)[0], cy: P(27.9, yy, 0.22)[1], rx: 5, ry: 6, fill: "#0a0f22" }, mini));
+
+        // ================= TRUCKS =================
+        function truck(pa, yl, cabCol) {
+          const g = el("g", {}, pa);
+          box(g, 0, yl + 0.1, 0.06, 4.4, 0.9, 0.2, "#0a0f22");
+          box(g, 0, yl, 0.26, 3.2, 1.1, 1.3, ["#eef1f7", "#d5dbe6", "#9aa5ba"]);
+          faceY(g, 0, 3.2, yl + 1.1, 0.5, 0.78, "#2448a8");
+          textY(g, 0.35, yl + 1.1, 1.0, "Red Bull", 14, K.red);
+          box(g, 3.32, yl, 0.26, 1.05, 1.1, 1.05, cabCol);
+          faceX(g, 4.37, yl + 0.12, yl + 0.98, 0.75, 1.15, "#16244f");
+          [0.6, 2.5, 3.85].forEach((xx) => el("ellipse", { cx: P(xx, yl + 1.1, 0.26)[0], cy: P(xx, yl + 1.1, 0.26)[1], rx: 6, ry: 7, fill: "#070b1a" }, g));
+          return g;
+        }
+        function truckB(pa, yl, cabCol) {
+          const g = el("g", {}, pa);
+          box(g, 0, yl + 0.1, 0.06, 4.4, 0.9, 0.2, "#0a0f22");
+          box(g, 0, yl, 0.26, 1.05, 1.1, 1.05, cabCol);
+          box(g, 1.2, yl, 0.26, 3.2, 1.1, 1.3, ["#eef1f7", "#d5dbe6", "#9aa5ba"]);
+          faceY(g, 1.2, 4.4, yl + 1.1, 0.5, 0.78, K.red);
+          textY(g, 1.55, yl + 1.1, 1.0, "Red Bull", 14, "#2448a8");
+          [0.55, 1.9, 3.8].forEach((xx) => el("ellipse", { cx: P(xx, yl + 1.1, 0.26)[0], cy: P(xx, yl + 1.1, 0.26)[1], rx: 6, ry: 7, fill: "#070b1a" }, g));
+          return g;
+        }
+        const roadHull = hull(0, 11.6, 0, 40, 15.2, 3.2);
+        const laneB = clipped(L.laneB, roadHull);
+        const laneA = clipped(L.laneA, roadHull);
+        const TRUCK_V = 1.8;
+        const FOLLOW_X0 = -24.7; // the truck the camera follows
+        const trucksA = [];
+        for (let k = -3; k <= 5; k++) {
+          const x0 = FOLLOW_X0 + k * 11;
+          trucksA.push({ g: truck(laneA, 13.75, k % 2 ? K.red : "#2448a8"), x0, v: TRUCK_V });
+        }
+        const trucksB = [];
+        for (let k = 0; k < 7; k++) {
+          const x0 = 44 + k * 13 - 3;
+          trucksB.push({ g: truckB(laneB, 12.25, k % 2 ? "#2448a8" : K.red), x0, v: -1.5 });
+        }
+
+        // ================= ROW 2 =================
+        const R2 = L.row2;
+        // --- port ---
+        const contCols = [K.red, "#2448a8", K.silver, K.yellow, "#1d8a6a"];
+        let ci = 0;
+        [[0.6, 15.9], [2.8, 15.9], [5.0, 15.9], [0.6, 16.9], [2.8, 16.9], [7.2, 16.9]].forEach(([x, y], i) => {
+          box(R2, x, y, 0.15, 2.0, 0.9, 0.8, contCols[ci++ % 5]);
+          if (i % 2 === 0) box(R2, x, y, 0.95, 2.0, 0.9, 0.8, contCols[ci++ % 5]);
+        });
+        const ship = el("g", {}, R2);
+        box(ship, 1.8, 19.4, -0.35, 8.6, 2.4, 0.95, ["#2a3768", "#c0001f", "#7d0015"]);
+        for (let i = 0; i < 6; i++) {
+          box(ship, 2.3 + i * 1.05, 19.6, 0.6, 1.0, 0.95, 0.75, contCols[(i + 1) % 5]);
+          box(ship, 2.3 + i * 1.05, 20.6, 0.6, 1.0, 0.95, 0.75, contCols[(i + 3) % 5]);
+          if (i % 2) box(ship, 2.3 + i * 1.05, 19.6, 1.35, 1.0, 0.95, 0.7, contCols[(i + 2) % 5]);
+        }
+        box(ship, 8.8, 19.6, 0.6, 1.2, 2.0, 1.7, K.white);
+        faceY(ship, 8.9, 9.9, 21.6, 1.75, 2.05, "#16244f");
+        box(ship, 9.25, 20.3, 2.3, 0.35, 0.35, 0.8, K.red);
+        // crane
+        const crane = el("g", {}, R2);
+        box(crane, 11.2, 15.8, 0.15, 0.3, 0.3, 4.3, K.yellow);
+        box(crane, 11.2, 17.5, 0.15, 0.3, 0.3, 4.3, K.yellow);
+        box(crane, 11.1, 15.6, 4.45, 0.5, 5.2, 0.32, K.yellow);
+        const hook = el("g", {}, crane);
+        const [hx, hy] = P(11.35, 19.9, 4.45);
+        const hookLine = el("line", { x1: hx, y1: hy, x2: hx, y2: hy + 50, stroke: "#c9d2ea", "stroke-width": 1.5 }, hook);
+        const hookBox = el("g", {}, hook);
+        box(hookBox, 10.4, 19.5, 2.6, 1.9, 0.85, 0.75, K.red);
+
+        // --- festival ---
+        box(R2, 16, 17.2, 0.15, 8, 3.2, 0.9, "#1a2142");
+        box(R2, 15.7, 16.9, 0.15, 0.3, 0.3, 4.7, "#465074");
+        box(R2, 23.9, 16.9, 0.15, 0.3, 0.3, 4.7, "#465074");
+        box(R2, 16.4, 17.2, 1.05, 7.2, 0.35, 3.0, "#0b1029");
+        const scrGrad = el("linearGradient", { id: "scrGrad", x1: 0, x2: 0, y1: 0, y2: 1 }, defs);
+        el("stop", { offset: 0, "stop-color": "#2a4ec0" }, scrGrad);
+        el("stop", { offset: 1, "stop-color": "#0f1f63" }, scrGrad);
+        faceY(R2, 16.7, 23.3, 17.55, 1.3, 3.8, "url(#scrGrad)");
+        const [scx, scy] = P(18.1, 17.55, 1.62);
+        smallCan(R2, scx, scy, 2.6);
+        textY(R2, 18.75, 17.55, 2.95, "DONNE DES", 17, K.yellow);
+        textY(R2, 18.75, 17.55, 2.3, "AILES", 30, "#ffffff");
+        box(R2, 15.7, 16.9, 4.85, 8.5, 0.3, 0.25, "#465074");
+        box(R2, 16.2, 19.2, 1.05, 0.8, 0.8, 1.1, "#151a33");
+        box(R2, 23.0, 19.2, 1.05, 0.8, 0.8, 1.1, "#151a33");
+        const lightPts = [17.2, 18.9, 20.6, 22.3];
+        lightPts.forEach((x) => box(R2, x, 17.0, 4.6, 0.3, 0.3, 0.25, K.yellow));
+        // crowd
+        const crowd = [];
+        const people = [];
+        for (let i = 0; i < 46; i++) people.push([16.3 + rand() * 7.6, 20.7 + rand() * 2.5, rand()]);
+        people.sort((a, b) => a[0] + a[1] - (b[0] + b[1]));
+        const shirt = ["#e4002b", "#ffc906", "#eef1f7", "#3e63d6", "#ff7a59", "#2bb38a"];
+        people.forEach(([x, y, r], i) => {
+          const g = el("g", {}, R2);
+          cylinder(g, x, y, 0.15, 0.17, 0.45, shirt[Math.floor(r * shirt.length)]);
+          const [hx2, hy2] = P(x, y, 0.78);
+          el("circle", { cx: hx2, cy: hy2, r: 4.6, fill: r > 0.5 ? "#f1c49c" : "#9b6a48" }, g);
+          if (r > 0.62) el("line", { x1: hx2 + 3, y1: hy2 + 4, x2: hx2 + 7, y2: hy2 - 9, stroke: r > 0.5 ? "#f1c49c" : "#9b6a48", "stroke-width": 2.4, "stroke-linecap": "round" }, g);
+          crowd.push({ g, r });
+        });
+        // light beams
+        const beamGrad = el("linearGradient", { id: "beamGrad", x1: 0, x2: 0, y1: 0, y2: 1 }, defs);
+        el("stop", { offset: 0, "stop-color": "#ffe27a", "stop-opacity": 0.75 }, beamGrad);
+        el("stop", { offset: 1, "stop-color": "#ffe27a", "stop-opacity": 0 }, beamGrad);
+        const beams = lightPts.map((x) => {
+          const [ax, ay] = P(x + 0.15, 17.3, 4.6);
+          const b = el("polygon", { points: `${ax},${ay} ${ax - 34},${ay + 210} ${ax + 34},${ay + 210}`, fill: "url(#beamGrad)", opacity: 0.55 }, R2);
+          return { b, ax, ay };
+        });
+
+        // --- city ---
+        const towers = [
+          [32, 17, 2.4, 2.4, 5.5, "#2b3f86"],
+          [35.2, 17.2, 2.6, 2.2, 7.2, "#34499a"],
+          [32.3, 20.6, 2.2, 2.4, 3.6, "#22356f"],
+          [35.5, 20.4, 2.6, 2.6, 4.6, "#2c4290"],
+        ];
+        const winLit = [];
+        towers.forEach(([x, y, w, d, h, c]) => {
+          box(R2, x, y, 0.15, w, d, h, c);
+          for (let z = 0.6; z < h - 0.2; z += 0.62) {
+            for (let xx = x + 0.25; xx < x + w - 0.3; xx += 0.5) {
+              const lit = rand() > 0.45;
+              const wv = poly(R2, [[xx, y + d, z], [xx + 0.28, y + d, z], [xx + 0.28, y + d, z + 0.34], [xx, y + d, z + 0.34]], lit ? "#ffd467" : "#1b2a62", { "stroke-width": 0 });
+              if (rand() > 0.82) winLit.push(wv);
+            }
+            for (let yy = y + 0.25; yy < y + d - 0.3; yy += 0.5) {
+              const lit = rand() > 0.55;
+              poly(R2, [[x + w, yy, z], [x + w, yy + 0.28, z], [x + w, yy + 0.28, z + 0.34], [x + w, yy, z + 0.34]], lit ? "#e0b554" : "#16234f", { "stroke-width": 0 });
+            }
+          }
+        });
+        box(R2, 35.5, 17.4, 7.35, 2.0, 0.16, 1.0, K.red);
+        el("circle", { cx: P(36.5, 17.56, 7.85)[0], cy: P(36.5, 17.56, 7.85)[1], r: 9, fill: K.yellow }, R2);
+        tree(R2, 38.8, 22.9, 1);
+        tree(R2, 14.6, 23.2, 1);
+
+        // ================= OVERLAY: routes + pins =================
+        const OV = L.overlay;
+        const routes = [
+          [[9.6, 7.8, 1.15], [16.8, 7.8, 1.15], [21, 9.0, 0.2], [21, 13.5, 0.05], [0.2, 13.5, 0.05]],
+          [[6, 13.5, 0.05], [6, 16.6, 0.2]],
+          [[21, 13.5, 0.05], [28.5, 13.5, 0.05], [28.5, 7.2, 0.05], [31.6, 7.2, 0.2]],
+          [[28.5, 13.5, 0.05], [28.5, 19.4, 0.05], [24.4, 19.4, 1.1]],
+          [[28.5, 19.4, 0.05], [31.6, 19.4, 0.2]],
+        ];
+        const routeEls = [];
+        const routePolys = [];
+        routes.forEach((r) => {
+          const sp = r.map((p) => P(p[0], p[1], p[2]));
+          let len = 0;
+          for (let i = 1; i < sp.length; i++) len += Math.hypot(sp[i][0] - sp[i - 1][0], sp[i][1] - sp[i - 1][1]);
+          const ptsStr = sp.map((p) => p.map((v) => v.toFixed(1)).join(",")).join(" ");
+          const glow = el("polyline", { points: ptsStr, fill: "none", stroke: K.yellow, "stroke-width": 16, "stroke-linecap": "round", "stroke-linejoin": "round", opacity: 0.22, "stroke-dasharray": len, "stroke-dashoffset": len }, OV);
+          const line = el("polyline", { points: ptsStr, fill: "none", stroke: K.yellow, "stroke-width": 5, "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-dasharray": len, "stroke-dashoffset": len }, OV);
+          routeEls.push({ glow, line, len });
+          routePolys.push({ sp, len });
+        });
+        const packets = [];
+        for (let i = 0; i < 10; i++) {
+          const c = el("circle", { r: 7, fill: "#ffffff", stroke: K.yellow, "stroke-width": 3, opacity: 0 }, OV);
+          packets.push({ c, route: i % routePolys.length, phase: (i * 0.37) % 1 });
+        }
+        function pointOn(rp, f) {
+          let d = f * rp.len;
+          for (let i = 1; i < rp.sp.length; i++) {
+            const a = rp.sp[i - 1],
+              b = rp.sp[i];
+            const s = Math.hypot(b[0] - a[0], b[1] - a[1]);
+            if (d <= s) return [a[0] + ((b[0] - a[0]) * d) / s, a[1] + ((b[1] - a[1]) * d) / s];
+            d -= s;
+          }
+          return rp.sp[rp.sp.length - 1];
+        }
+        const pinData = [
+          ["01", 6.2, 5.6, 6.3],
+          ["02", 21, 4.5, 4.7],
+          ["03", 6.2, 20.6, 3.4],
+          ["04", 35, 4.75, 6.0],
+          ["05", 20, 18.6, 6.1],
+        ];
+        const pins = pinData.map(([n, x, y, z]) => {
+          const [px, py] = P(x, y, z);
+          const g = el("g", { transform: `translate(${px.toFixed(1)},${py.toFixed(1)})` }, OV);
+          const inner = el("g", {}, g);
+          el("line", { x1: 0, y1: 0, x2: 0, y2: 46, stroke: "#ffffff", "stroke-width": 3, opacity: 0.8 }, inner);
+          el("circle", { cx: 0, cy: 0, r: 30, fill: "#c4001f", stroke: "#ffffff", "stroke-width": 4 }, inner);
+          const t = el("text", { x: 0, y: 9, "text-anchor": "middle", "font-family": "Archivo Black", "font-size": 26, fill: "#ffffff", ...SIGN }, inner);
+          t.textContent = n;
+          return inner;
+        });
+
+        // ================= HERO CAN (opening + end) =================
+        function heroCan(svgEl, pre) {
+          const d = el("defs", {}, svgEl);
+          const body = "M40 92 Q24 100 24 126 L24 590 Q24 622 64 628 L236 628 Q276 622 276 590 L276 126 Q276 100 260 92 L238 62 L62 62 Z";
+          const cp = el("clipPath", { id: pre + "clip" }, d);
+          el("path", { d: body }, cp);
+          const sh = el("linearGradient", { id: pre + "sh", x1: 0, x2: 1, y1: 0, y2: 0 }, d);
+          [[0, "#000", 0.42], [0.16, "#000", 0], [0.3, "#fff", 0.38], [0.42, "#fff", 0], [0.78, "#000", 0.08], [1, "#000", 0.48]].forEach(([o, c, a]) => el("stop", { offset: o, "stop-color": c, "stop-opacity": a }, sh));
+          const lid = el("linearGradient", { id: pre + "lid", x1: 0, x2: 1, y1: 0, y2: 0 }, d);
+          [[0, "#8d97ab"], [0.35, "#f4f6fa"], [1, "#7c869b"]].forEach(([o, c]) => el("stop", { offset: o, "stop-color": c }, lid));
+          el("ellipse", { cx: 150, cy: 636, rx: 128, ry: 14, fill: "#000", opacity: 0.35 }, svgEl);
+          const g = el("g", { "clip-path": `url(#${pre}clip)` }, svgEl);
+          el("rect", { x: 0, y: 0, width: 300, height: 650, fill: "#dfe4ee" }, g);
+          for (let r = 0; r < 2; r++)
+            for (let c = 0; c < 5; c++)
+              if ((r + c) % 2 === 0) el("polygon", { points: `${-40 + c * 76},${126 + r * 232} ${36 + c * 76},${126 + r * 232} ${66 + c * 76},${358 + r * 232} ${-10 + c * 76},${358 + r * 232}`, fill: "#1d3d97" }, g);
+          el("rect", { x: 0, y: 62, width: 300, height: 64, fill: "#c9d0dd" }, g);
+          el("circle", { cx: 150, cy: 330, r: 66, fill: "#ffc906" }, g);
+          const tx = el("text", { x: 150, y: 372, "text-anchor": "middle", "font-family": "Archivo Black", "font-size": 50, fill: "#e4002b", stroke: "#ffffff", "stroke-width": 5, "paint-order": "stroke", textLength: 226, lengthAdjust: "spacingAndGlyphs" }, g);
+          tx.textContent = "Red Bull";
+          el("rect", { x: 0, y: 0, width: 300, height: 650, fill: `url(#${pre}sh)` }, g);
+          const shine = el("rect", { x: -120, y: 0, width: 46, height: 650, fill: "#ffffff", opacity: 0.32, transform: "skewX(-12)" }, g);
+          el("ellipse", { cx: 150, cy: 62, rx: 88, ry: 14, fill: `url(#${pre}lid)` }, svgEl);
+          el("ellipse", { cx: 150, cy: 63, rx: 72, ry: 10, fill: "#9ea8bb" }, svgEl);
+          el("rect", { x: 128, y: 54, width: 44, height: 12, rx: 6, fill: "#d6dbe5", stroke: "#8c96aa", "stroke-width": 2 }, svgEl);
+          return { shine };
+        }
+        const openCan = heroCan(document.getElementById("open-can"), "oc");
+        const endCan = heroCan(document.getElementById("end-can"), "ec");
+
+        // wings (end card)
+        const wingsSvg = document.getElementById("end-wings");
+        const wd = el("defs", {}, wingsSvg);
+        const wg = el("linearGradient", { id: "wingGrad", x1: 0, x2: 1, y1: 0, y2: 0 }, wd);
+        [[0, "#ffffff"], [1, "#b9c7ee"]].forEach(([o, c]) => el("stop", { offset: o, "stop-color": c }, wg));
+        const feathers = [];
+        const WING_Y = 330;
+        [[-1, 860], [1, 1060]].forEach(([side, ax]) => {
+          const g = el("g", { transform: `translate(${ax},${WING_Y}) scale(${side},1)` }, wingsSvg);
+          const specs = [
+            [-34, 330],
+            [-14, 300],
+            [6, 262],
+            [26, 214],
+            [44, 160],
+          ];
+          specs.forEach(([ang, len], i) => {
+            const f = el("path", { d: `M0 0 C ${len * 0.3} -30 ${len * 0.75} -34 ${len} -6 C ${len * 0.72} 16 ${len * 0.3} 20 0 0 Z`, fill: "url(#wingGrad)", stroke: "#8fa6e6", "stroke-width": 2, opacity: 0.95 }, g);
+            feathers.push({ f, ang, i, side });
+          });
+        });
+        const sparks = [];
+        for (let i = 0; i < 28; i++) {
+          const c = el("circle", { cx: 300 + rand() * 1320, cy: 600 + rand() * 420, r: 2 + rand() * 3.5, fill: rand() > 0.4 ? "#ffc906" : "#ffffff", opacity: 0 }, wingsSvg);
+          sparks.push({ c, d: 120 + rand() * 260, t: rand() });
+        }
+
+        // =====================================================================
+        // TIMELINE
+        // =====================================================================
+        const world = document.getElementById("world");
+        const camEl = document.getElementById("cam");
+        const pose = (x, y, z, s) => {
+          const [px, py] = P(x, y, z);
+          return { x: -s * (px - 960), y: -s * (py - 540), scale: s, transformOrigin: "50% 50%" };
+        };
+
+        // ambient camera drift (outer wrapper)
+        tl.fromTo(camEl, { x: -6 }, { x: 6, duration: 4.5, ease: "sine.inOut", yoyo: true, repeat: 7 }, 0);
+        tl.fromTo(camEl, { y: 4 }, { y: -4, immediateRender: false, duration: 3.4, ease: "sine.inOut", yoyo: true, repeat: 9 }, 0);
+        tl.fromTo("#ghost", { x: 0 }, { x: -700, duration: DUR, ease: "none" }, 0);
+        tl.fromTo("#bg-glow", { scale: 0.9, opacity: 0.7 }, { scale: 1.15, opacity: 1, duration: 6, ease: "sine.inOut", yoyo: true, repeat: 5 }, 0);
+
+        // camera journey (legs on #world)
+        const followAt = (t) => FOLLOW_X0 + TRUCK_V * t + 2.2;
+        tl.fromTo(world, pose(12.6, 7.8, 1.2, 5.2), { ...pose(7.2, 6.2, 1.9, 2.2), duration: 2.4, ease: "power4.out" }, 3.0);
+        tl.to(world, { ...pose(8.6, 6.6, 1.5, 2.45), duration: 3.6, ease: "sine.inOut" }, 5.4);
+        tl.to(world, { ...pose(20.6, 7.4, 1.2, 2.35), duration: 1.8, ease: "power2.inOut" }, 9.0);
+        tl.to(world, { ...pose(21.2, 7.6, 1.2, 2.55), duration: 3.1, ease: "sine.inOut" }, 10.8);
+        tl.to(world, { ...pose(followAt(15.1) + 0.6, 15.4, 0.9, 2.7), duration: 1.2, ease: "power3.inOut" }, 13.9);
+        tl.to(world, { ...pose(followAt(19.0) + 0.2, 15.4, 0.9, 2.55), duration: 3.9, ease: "sine.inOut" }, 15.1);
+        tl.to(world, { ...pose(23.5, 10.5, 1.4, 1.45), duration: 0.8, ease: "power2.in" }, 19.0);
+        tl.to(world, { ...pose(34.8, 6.4, 1.5, 2.45), duration: 0.85, ease: "power3.out" }, 19.8);
+        tl.to(world, { ...pose(35.2, 6.7, 1.5, 2.65), duration: 3.4, ease: "sine.inOut" }, 20.6);
+        tl.to(world, { ...pose(20, 12, 2.2, 0.8), duration: 2.2, ease: "power3.inOut" }, 24.0);
+        tl.to(world, { ...pose(20, 12, 2.2, 0.85), duration: 3.2, ease: "sine.inOut" }, 26.2);
+        tl.to(world, { ...pose(20, 17.55, 2.55, 7.5), duration: 1.8, ease: "power4.in" }, 29.4);
+
+        // conveyor cans (continuous)
+        tl.fromTo(beltCans, { x: 0, y: 0 }, { x: BELT_SPEED * DUR * CX, y: BELT_SPEED * DUR * CY, duration: DUR, ease: "none" }, 0);
+        tl.fromTo(dashA, { attr: { "stroke-dashoffset": 0 } }, { attr: { "stroke-dashoffset": -300 }, duration: DUR, ease: "none" }, 0);
+        waveLines.forEach((w, k) => tl.fromTo(w, { attr: { "stroke-dashoffset": k * 7 } }, { attr: { "stroke-dashoffset": k * 7 - 220 }, duration: DUR, ease: "none" }, 0));
+
+        // steam
+        steamPuffs.forEach((p, i) => {
+          tl.fromTo(p, { x: 0, y: 0, scale: 0.4, opacity: 0, svgOrigin: `${stx} ${sty}` }, { keyframes: { x: [0, 18 + i * 3], y: [0, -95], scale: [0.4, 2.1], opacity: [0, 0.75, 0] }, duration: 2.6, ease: "none", repeat: 12, delay: 0 }, i * 0.43);
+        });
+
+        // pallets pop
+        newPallets.forEach(({ g, base }, i) => {
+          tl.fromTo(g, { scale: 0, svgOrigin: `${base[0]} ${base[1]}` }, { scale: 1, duration: 0.45, ease: "back.out(2)" }, 10.9 + i * 0.42);
+        });
+        // forklift shuttle
+        tl.fromTo(fork, { x: 0, y: 0 }, { x: 1.4 * CX, y: 1.4 * CY, duration: 1.6, ease: "sine.inOut", yoyo: true, repeat: 21 }, 0);
+
+        // trucks
+        trucksA.concat(trucksB).forEach(({ g, x0, v }) => {
+          tl.fromTo(g, { x: x0 * CX, y: x0 * CY }, { x: (x0 + v * DUR) * CX, y: (x0 + v * DUR) * CY, duration: DUR, ease: "none" }, 0);
+        });
+
+        // mini arrives at the shop
+        tl.fromTo(mini, { x: 3 * CX, y: -3 * CY }, { x: -6.6 * CX, y: 6.6 * CY, duration: 2.6, ease: "power2.out" }, 20.4);
+
+        // fridge fills
+        fridgeCans.forEach((c, i) => {
+          const tr = c.getAttribute("transform");
+          const m = /translate\(([-\d.]+),([-\d.]+)\)/.exec(tr);
+          tl.fromTo(c, { scale: 0, svgOrigin: `${m[1]} ${m[2]}` }, { scale: 0.78, duration: 0.35, ease: "back.out(2.4)" }, 20.8 + i * 0.055);
+        });
+        tl.fromTo(roofSun, { attr: { r: 7 } }, { attr: { r: 11 }, duration: 0.8, ease: "sine.inOut", yoyo: true, repeat: 43 }, 0);
+
+        // ship + crane
+        tl.fromTo(ship, { x: 0, y: 0 }, { x: -1.4 * CX, y: -1.4 * CY, duration: DUR, ease: "none" }, 0);
+        tl.fromTo(hookBox, { y: 0 }, { y: -40, duration: 2.2, ease: "sine.inOut", yoyo: true, repeat: 15 }, 0);
+        tl.fromTo(hookLine, { attr: { y2: hy + 50 } }, { attr: { y2: hy + 10 }, duration: 2.2, ease: "sine.inOut", yoyo: true, repeat: 15 }, 0);
+
+        // festival life
+        crowd.forEach(({ g, r }, i) => {
+          tl.fromTo(g, { y: 0 }, { y: -4 - r * 4, duration: 0.32 + r * 0.12, ease: "sine.inOut", yoyo: true, repeat: Math.floor(DUR / (0.32 + r * 0.12)) - 1 }, 0);
+        });
+        beams.forEach(({ b, ax, ay }, i) => {
+          tl.fromTo(b, { rotation: i % 2 ? -24 : 24, svgOrigin: `${ax} ${ay}` }, { rotation: i % 2 ? 24 : -24, duration: 1.7 + i * 0.2, ease: "sine.inOut", yoyo: true, repeat: Math.floor(DUR / (1.7 + i * 0.2)) - 1 }, 0);
+        });
+        winLit.forEach((w, i) => {
+          tl.to(w, { attr: { fill: i % 2 ? "#ffd467" : "#1b2a62" }, duration: 0.01 }, 2 + ((i * 2.7) % 30));
+        });
+
+        // wide reveal: routes, packets, pins
+        routeEls.forEach(({ glow, line, len }, i) => {
+          tl.to([glow, line], { attr: { "stroke-dashoffset": 0 }, duration: 1.1, ease: "power2.inOut" }, 25.4 + i * 0.28);
+        });
+        const pk = { p: 0 };
+        tl.fromTo(
+          pk,
+          { p: 0 },
+          {
+            p: 1,
+            duration: 2.8,
+            ease: "none",
+            onUpdate: () => {
+              packets.forEach(({ c, route, phase }) => {
+                const f = (pk.p * 1.6 + phase) % 1;
+                const [x, y] = pointOn(routePolys[route], f);
+                c.setAttribute("cx", x.toFixed(1));
+                c.setAttribute("cy", y.toFixed(1));
+              });
+            },
+          },
+          26.6,
+        );
+        tl.fromTo(packets.map((p) => p.c), { opacity: 0 }, { opacity: 1, duration: 0.3 }, 26.6);
+        pins.forEach((p, i) => {
+          tl.fromTo(p, { scale: 0, transformOrigin: "50% 100%" }, { scale: 1, duration: 0.5, ease: "back.out(2.2)" }, 25.9 + i * 0.16);
+        });
+
+        // ---------------- HUD ----------------
+        tl.fromTo("#progress", { y: -40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 4.4);
+        const stepAt = [[4.6, 0.12, "#st1"], [10.9, 0.34, "#st2"], [15.1, 0.56, "#st3"], [20.7, 0.78, "#st4"], [29.4, 1, "#st5"]];
+        tl.set("#track-fill", { scaleX: 0 }, 0);
+        stepAt.forEach(([t, s, id]) => {
+          tl.to("#track-fill", { scaleX: s, duration: 0.8, ease: "power3.inOut" }, t);
+          tl.fromTo(id, { color: "#c9d3ec" }, { color: "#ffc906", duration: 0.3 }, t);
+        });
+        tl.to("#progress", { opacity: 0, duration: 0.3 }, 25.2);
+
+        function panelIn(id, t, out) {
+          const p = document.getElementById(id);
+          const dx = p.classList.contains("right") ? 60 : -60;
+          tl.fromTo(p, { x: dx, opacity: 0 }, { x: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, t);
+          tl.fromTo(p.querySelector(".num"), { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, t + 0.1);
+          tl.fromTo(p.querySelector(".ptitle"), { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, t + 0.18);
+          tl.fromTo(p.querySelector(".psub"), { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, t + 0.28);
+          tl.to(p, { x: dx * 0.66, opacity: 0, duration: 0.35, ease: "power2.in" }, out - 0.38);
+        }
+        panelIn("p1", 4.7, 9.0);
+        panelIn("p2", 11.0, 14.0);
+        panelIn("p3", 15.2, 19.0);
+        panelIn("p4", 20.8, 24.0);
+
+        tl.fromTo("#wide-title-wrap", { y: -50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 26.0);
+        tl.fromTo("#stat-a", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 26.3);
+        tl.fromTo("#stat-b", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 26.45);
+        const cntA = { v: 0 },
+          cntB = { v: 0 };
+        const cA = document.getElementById("cnt-a"),
+          cB = document.getElementById("cnt-b");
+        tl.fromTo(cntA, { v: 0 }, { v: 175, duration: 1.6, ease: "power3.out", onUpdate: () => (cA.textContent = Math.round(cntA.v)) }, 26.4);
+        tl.fromTo(cntB, { v: 0 }, { v: 12, immediateRender: false, duration: 1.6, ease: "power3.out", onUpdate: () => (cB.textContent = Math.round(cntB.v)) }, 26.55);
+        tl.to(["#wide-title-wrap", "#stat-a", "#stat-b"], { opacity: 0, duration: 0.3, ease: "power2.in" }, 29.1);
+
+        tl.fromTo("#toi-text", { scale: 0.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: "power3.out" }, 29.55);
+        tl.to("#toi-text", { scale: 1.6, opacity: 0, duration: 0.4, ease: "power2.in" }, 30.75);
+
+        // ---------------- opening ----------------
+        tl.fromTo("#ol1", { y: 70, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "power4.out" }, 0.2);
+        tl.fromTo("#ol2", { y: 70, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "power4.out" }, 0.45);
+        tl.fromTo("#open-sub", { x: -30, opacity: 0 }, { x: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 0.9);
+        tl.fromTo("#open-can-wrap", { y: 80, rotation: 8, opacity: 0 }, { y: 0, rotation: -4, opacity: 1, duration: 1.0, ease: "power3.out" }, 0.1);
+        tl.to("#open-can-wrap", { y: -16, rotation: 0, duration: 1.7, ease: "sine.inOut" }, 1.1);
+        tl.fromTo(openCan.shine, { x: -120 }, { x: 520, duration: 1.4, ease: "power2.inOut" }, 0.7);
+        tl.to("#open-copy", { x: -120, opacity: 0, duration: 0.5, ease: "power2.in" }, 2.8);
+        tl.to("#open-can-wrap", { scale: 3.4, x: -260, y: 60, duration: 0.85, ease: "power3.in" }, 2.85);
+        tl.to("#open-inner", { opacity: 0, duration: 0.5, ease: "power1.in" }, 3.15);
+
+        // ---------------- push + flash ----------------
+        tl.fromTo("#flash", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.in" }, 30.9);
+        tl.to("#flash", { opacity: 0, duration: 0.55, ease: "power2.out" }, 31.2);
+
+        // ---------------- end card ----------------
+        tl.fromTo("#end-can-wrap", { y: 70, scale: 0.85, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 0.9, ease: "power4.out" }, 31.25);
+        tl.to("#end-can-wrap", { y: -12, duration: 2.4, ease: "sine.inOut", yoyo: true, repeat: 1 }, 32.15);
+        tl.fromTo(endCan.shine, { x: -120 }, { x: 520, duration: 1.3, ease: "power2.inOut" }, 32.6);
+        feathers.forEach(({ f, ang, i }) => {
+          tl.fromTo(f, { rotation: 80, scale: 0.15, svgOrigin: "0 0", opacity: 0 }, { rotation: ang, scale: 1, opacity: 0.95, duration: 0.9, ease: "back.out(1.6)" }, 31.6 + i * 0.07);
+          tl.to(f, { rotation: ang - 5, duration: 1.2, ease: "sine.inOut", yoyo: true, repeat: 2 }, 32.6 + i * 0.07);
+        });
+        sparks.forEach(({ c, d, t }) => {
+          tl.fromTo(c, { y: 0, opacity: 0 }, { keyframes: { y: [0, -d], opacity: [0, 0.9, 0] }, duration: 2.2, ease: "none" }, 31.5 + t * 2.2);
+        });
+        tl.fromTo("#end-tag", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "power4.out" }, 32.0);
+        tl.fromTo("#end-sub", { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 32.35);
+        tl.fromTo("#end-legal", { opacity: 0 }, { opacity: 1, duration: 0.6 }, 32.8);
+
+        window.__timelines["main"] = tl;
+      })();
+    </script>
+  </body>
+</html>
