@@ -3,3 +3,4 @@ snapshots/
 node_modules/
 renders/work-*/
 renders/.*
+renders/*.mp4
