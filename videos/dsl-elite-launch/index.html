@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>DSL Elite — Launch Cinematic</title>
+    <script src="vendor/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #050505;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #050505;
+        color: #f5f5f5;
+        font-family: "Montserrat", sans-serif;
+      }
+      #stage {
+        position: absolute;
+        inset: 0;
+      }
+      #space {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1920px;
+        height: 1080px;
+      }
+      #vignette {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 50% 50%, rgba(5, 5, 5, 0) 45%, rgba(5, 5, 5, 0.85) 100%);
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+
+      /* HUD */
+      #hud {
+        position: absolute;
+        left: 110px;
+        top: 96px;
+        width: 760px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 26px;
+        line-height: 1.7;
+        letter-spacing: 0.06em;
+        color: #ffb27a;
+      }
+      .hl {
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        width: 0;
+      }
+      #hl4 {
+        color: #ff6b78;
+      }
+      #hud-corner {
+        position: absolute;
+        right: 110px;
+        top: 96px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 22px;
+        letter-spacing: 0.18em;
+        color: #a3a3a3;
+        text-align: right;
+      }
+
+      /* cinematic lines */
+      .cine {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 150px;
+        text-align: center;
+        font-family: "Montserrat", sans-serif;
+        font-weight: 700;
+        font-size: 56px;
+        letter-spacing: 0.04em;
+        color: #f5f5f5;
+      }
+      .cine em {
+        font-style: normal;
+        color: #ff8c42;
+      }
+
+      /* shockwave + flash */
+      .ring {
+        position: absolute;
+        left: 960px;
+        top: 540px;
+        width: 400px;
+        height: 400px;
+        margin-left: -200px;
+        margin-top: -200px;
+        border-radius: 50%;
+        border: 6px solid #ffb27a;
+        opacity: 0;
+      }
+      #ring2 {
+        border-color: #ffffff;
+        border-width: 3px;
+      }
+      #flash {
+        position: absolute;
+        inset: 0;
+        background: #fff4e8;
+        opacity: 0;
+      }
+
+      /* logo */
+      #logo {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 330px;
+        text-align: center;
+      }
+      #logo-dsl-wrap {
+        position: relative;
+        display: inline-block;
+        width: 760px;
+        height: 250px;
+      }
+      .dsl {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 760px;
+        font-family: "Montserrat", sans-serif;
+        font-weight: 900;
+        font-size: 260px;
+        line-height: 250px;
+        letter-spacing: 0.06em;
+        text-align: center;
+        color: #f5f5f5;
+      }
+      #dsl-r {
+        color: #ff4757;
+        opacity: 0;
+      }
+      #dsl-o {
+        color: #ff8c42;
+        opacity: 0;
+      }
+      #elite {
+        display: block;
+        margin-top: 22px;
+        font-family: "Montserrat", sans-serif;
+        font-weight: 700;
+        font-size: 64px;
+        letter-spacing: 0.62em;
+        padding-left: 0.62em;
+        color: #ff8c42;
+        text-shadow: 0 0 14px #050505, 0 0 28px #050505;
+      }
+      #rule {
+        display: block;
+        width: 640px;
+        height: 3px;
+        margin: 28px auto 0;
+        background: #ff8c42;
+        transform-origin: 50% 50%;
+      }
+      #sub {
+        display: block;
+        margin-top: 26px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 26px;
+        letter-spacing: 0.32em;
+        color: #c9c9c9;
+        text-shadow: 0 0 12px #050505, 0 0 24px #050505;
+      }
+      #cta {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 930px;
+        text-align: center;
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        font-size: 30px;
+        letter-spacing: 0.4em;
+        color: #f5f5f5;
+        text-shadow: 0 0 12px #050505;
+      }
+      #cta-tag {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 870px;
+        text-align: center;
+        font-family: "Montserrat", sans-serif;
+        font-weight: 700;
+        font-size: 30px;
+        letter-spacing: 0.2em;
+        color: #ff8c42;
+      }
+      #fadeout {
+        position: absolute;
+        inset: 0;
+        background: #050505;
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="13.5" data-width="1920" data-height="1080">
+      <div id="stage">
+        <canvas id="space" width="1920" height="1080"></canvas>
+        <div id="vignette"></div>
+        <div class="ring" id="ring1"></div>
+        <div class="ring" id="ring2"></div>
+      </div>
+
+      <section id="s-hud" class="clip" data-start="0.4" data-duration="5.2" data-track-index="2">
+        <div id="hud">
+          <span class="hl" id="hl1">&gt; INITIALISATION DU SYSTÈME DSL</span>
+          <span class="hl" id="hl2">&gt; SCAN DU SECTEUR 07…</span>
+          <span class="hl" id="hl3">&gt; SIGNAL GRAVITATIONNEL CAPTÉ</span>
+          <span class="hl" id="hl4">⚠ ANOMALIE DÉTECTÉE</span>
+        </div>
+        <div id="hud-corner">
+          <span style="display: block">DSL // DEEP SPACE LINK</span>
+          <span style="display: block" id="coord">X 4.07 · Y −1.92</span>
+        </div>
+      </section>
+
+      <section id="s-l1" class="clip" data-start="3.6" data-duration="1.9" data-track-index="3">
+        <div class="cine" id="l1">Au centre de chaque empire…</div>
+      </section>
+      <section id="s-l2" class="clip" data-start="5.4" data-duration="2.1" data-track-index="3">
+        <div class="cine" id="l2">… une force qui <em>attire tout.</em></div>
+      </section>
+
+      <section id="s-logo" class="clip" data-start="8.0" data-duration="5.5" data-track-index="4">
+        <div id="logo">
+          <div id="logo-dsl-wrap">
+            <span class="dsl" id="dsl-r">DSL</span>
+            <span class="dsl" id="dsl-o">DSL</span>
+            <span class="dsl" id="dsl">DSL</span>
+          </div>
+          <span id="elite">ELITE</span>
+          <span id="rule"></span>
+          <span id="sub">BUSINESS SIMULATION</span>
+        </div>
+        <div id="cta-tag">ENTRE DANS LA PARTIE</div>
+        <div id="cta">APPUIE SUR START</div>
+      </section>
+
+      <div id="flash"></div>
+      <div id="fadeout"></div>
+
+      <!-- sound design (synthesized: tools/make_sfx.py) -->
+      <audio id="sfx-drone" src="assets/sfx/drone.wav" data-start="0" data-duration="13.5" data-track-index="6" data-volume="0.9"></audio>
+      <audio id="sfx-blips" src="assets/sfx/hud-blips.wav" data-start="0.5" data-duration="4" data-track-index="7" data-volume="0.7"></audio>
+      <audio id="sfx-riser" src="assets/sfx/riser.wav" data-start="5.6" data-duration="2.35" data-track-index="8" data-volume="0.8"></audio>
+      <audio id="sfx-implode" src="assets/sfx/implode.wav" data-start="7.2" data-duration="0.75" data-track-index="9" data-volume="0.8"></audio>
+      <audio id="sfx-impact" src="assets/sfx/impact.wav" data-start="7.95" data-duration="4.8" data-track-index="10" data-volume="1"></audio>
+      <audio id="sfx-shimmer" src="assets/sfx/shimmer.wav" data-start="8.35" data-duration="3.8" data-track-index="11" data-volume="0.6"></audio>
+      <audio id="sfx-whoosh" src="assets/sfx/whoosh.wav" data-start="9.0" data-duration="0.9" data-track-index="12" data-volume="0.6"></audio>
+      <audio id="sfx-start" src="assets/sfx/start.wav" data-start="11.3" data-duration="2.2" data-track-index="13" data-volume="0.7"></audio>
+    </div>
+
+    <script>
+      (function () {
+        const tl = gsap.timeline({ paused: true });
+        const DUR = 13.5;
+        const W = 1920,
+          H = 1080,
+          CX = 960,
+          CY = 540;
+        const T_COLLAPSE = 6.7,
+          T_BANG = 7.95;
+
+        // deterministic PRNG
+        let seed = 1971;
+        const rand = () => {
+          seed = (seed + 0x6d2b79f5) | 0;
+          let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+        const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+        const smooth = (a, b, v) => {
+          const x = clamp((v - a) / (b - a));
+          return x * x * (3 - 2 * x);
+        };
+
+        // ---------- particle sets ----------
+        const stars = [];
+        for (let i = 0; i < 900; i++) {
+          stars.push({ x: rand() * W * 1.4 - W * 0.2, y: rand() * H * 1.4 - H * 0.2, s: rand() < 0.08 ? 2.4 : 1.2, b: 0.25 + rand() * 0.75, ph: rand() * 6.28 });
+        }
+        const disk = [];
+        for (let i = 0; i < 5200; i++) {
+          const u = rand();
+          const r = 1.55 + Math.pow(u, 1.8) * 3.8; // in shadow radii, dense near the inner edge
+          disk.push({ r, th: rand() * Math.PI * 2, s: 1.2 + rand() * 2.4, j: (rand() - 0.5) * 0.05, v: 0.6 + rand() * 1.4, k: rand() });
+        }
+        const halo = [];
+        for (let i = 0; i < 1400; i++) {
+          const u = rand();
+          halo.push({ r: 1.04 + Math.pow(u, 2.2) * 0.42, a: rand() * Math.PI * 2, s: 1 + rand() * 1.6, k: rand() });
+        }
+
+        // colour by temperature (0 = hot inner, 1 = cool outer)
+        function tempColor(x, alpha) {
+          let r, g, b;
+          if (x < 0.25) {
+            const k = x / 0.25;
+            r = 255; g = 244 - 52 * k; b = 214 - 124 * k;
+          } else if (x < 0.65) {
+            const k = (x - 0.25) / 0.4;
+            r = 255; g = 192 - 52 * k; b = 90 - 24 * k;
+          } else {
+            const k = (x - 0.65) / 0.35;
+            r = 255 - 10 * k; g = 140 - 69 * k; b = 66 + 21 * k;
+          }
+          return `rgba(${r | 0},${g | 0},${b | 0},${alpha.toFixed(3)})`;
+        }
+
+        // integral of spin speed (spin accelerates into the collapse)
+        function spinPhase(t) {
+          if (t < T_COLLAPSE) return t;
+          const d = Math.min(t, T_BANG) - T_COLLAPSE;
+          const span = T_BANG - T_COLLAPSE;
+          return T_COLLAPSE + d + 7 * (d * d * d) / (3 * span * span);
+        }
+
+        const cv = document.getElementById("space");
+        const ctx = cv.getContext("2d");
+
+        function draw(t) {
+          ctx.globalCompositeOperation = "source-over";
+          ctx.fillStyle = "#050505";
+          ctx.fillRect(0, 0, W, H);
+
+          const pre = t < T_BANG;
+          const after = t - T_BANG;
+          // shadow radius: far → push-in → collapse; reborn small behind the logo
+          let R;
+          if (pre) {
+            R = 42 + 168 * smooth(1.0, 6.9, t);
+            R *= 1 - 0.78 * Math.pow(clamp((t - T_COLLAPSE) / (T_BANG - T_COLLAPSE)), 2.2);
+          } else {
+            R = 245 * smooth(1.4, 3.4, after);
+          }
+          const bright = pre ? smooth(0.8, 2.6, t) * (1 + 0.9 * smooth(T_COLLAPSE, T_BANG, t)) : 0.6 * smooth(1.4, 3.4, after);
+          const tilt = -0.14 + 0.06 * smooth(0, DUR, t);
+          const cosT = Math.cos(tilt),
+            sinT = Math.sin(tilt);
+          const ASPECT = 0.24;
+          const phase = pre ? spinPhase(t) : 8 + after * 0.6;
+          const cy = pre ? CY : 455; // reborn hole frames the "DSL" mark
+
+          // starfield with gravitational lensing + streaks on the bang
+          const lens = R * R * 2.2;
+          for (const s of stars) {
+            let dx = s.x - CX + (pre ? -t * 6 : 0),
+              dy = s.y - cy;
+            let d2 = dx * dx + dy * dy + 1;
+            const d = Math.sqrt(d2);
+            const push = lens / d; // Einstein-ring style displacement
+            let x = CX + (dx / d) * (d + push),
+              y = cy + (dy / d) * (d + push);
+            let a = s.b * (0.55 + 0.45 * Math.sin(t * 2.3 + s.ph)) * smooth(0, 1.2, t);
+            if (!pre && after < 1.5) {
+              const k = Math.pow(clamp(1 - after / 1.5), 2) * 260;
+              ctx.strokeStyle = `rgba(255,220,190,${(a * 0.8).toFixed(3)})`;
+              ctx.lineWidth = s.s;
+              ctx.beginPath();
+              ctx.moveTo(x, y);
+              ctx.lineTo(x + (dx / d) * k, y + (dy / d) * k);
+              ctx.stroke();
+            }
+            if (Math.hypot(x - CX, y - cy) < R * 1.02) continue;
+            ctx.fillStyle = `rgba(255,240,230,${a.toFixed(3)})`;
+            ctx.fillRect(x, y, s.s, s.s);
+          }
+
+          if (bright <= 0.001 && pre) return;
+
+          // outer glow
+          if (R > 1) {
+            const g = ctx.createRadialGradient(CX, cy, R * 0.9, CX, cy, R * 5.5);
+            g.addColorStop(0, `rgba(255,140,66,${(0.35 * bright).toFixed(3)})`);
+            g.addColorStop(0.35, `rgba(255,71,87,${(0.12 * bright).toFixed(3)})`);
+            g.addColorStop(1, "rgba(255,71,87,0)");
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, W, H);
+          }
+
+          ctx.globalCompositeOperation = "lighter";
+          const project = (p, scaleR) => {
+            const th = p.th + phase * p.v * 1.6 / Math.pow(p.r, 1.5);
+            const x = Math.cos(th) * p.r * scaleR,
+              y = Math.sin(th) * p.r * scaleR * ASPECT;
+            return { X: CX + x * cosT - y * sinT, Y: cy + x * sinT + y * cosT + p.j * scaleR, th, front: Math.sin(th) > 0, cos: Math.cos(th) };
+          };
+
+          // explosion debris (disk particles flung outward)
+          if (!pre && after < 3) {
+            const fade = Math.exp(-after * 1.6);
+            for (const p of disk) {
+              const th = p.th;
+              const dist = (p.r * 40) + Math.pow(after, 0.6) * (500 + p.k * 1400);
+              const x = CX + Math.cos(th) * dist,
+                y = CY + Math.sin(th) * dist * 0.62;
+              ctx.fillStyle = tempColor(clamp((p.r - 1.55) / 3.8), 0.9 * fade);
+              ctx.fillRect(x, y, p.s * 1.6, p.s * 1.6);
+            }
+          }
+          if (R < 2) return;
+
+          // soft luminous band along the disk plane
+          ctx.save();
+          ctx.translate(CX, cy);
+          ctx.rotate(tilt);
+          ctx.scale(1, ASPECT);
+          const band = ctx.createRadialGradient(0, 0, R * 1.2, 0, 0, R * 5.4);
+          band.addColorStop(0, `rgba(255,190,120,${(0.42 * bright).toFixed(3)})`);
+          band.addColorStop(0.3, `rgba(255,140,66,${(0.2 * bright).toFixed(3)})`);
+          band.addColorStop(1, "rgba(255,71,87,0)");
+          ctx.fillStyle = band;
+          ctx.beginPath();
+          ctx.arc(0, 0, R * 5.4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // back half of the disk
+          const DR = R;
+          for (const p of disk) {
+            const q = project(p, DR);
+            if (q.front) continue;
+            const dop = 1 + 0.55 * -q.cos;
+            const a = clamp(0.55 * bright * dop * (1.2 - (p.r - 1.55) / 4.5));
+            ctx.fillStyle = tempColor(clamp((p.r - 1.55) / 3.8), a);
+            ctx.fillRect(q.X, q.Y, p.s, p.s);
+          }
+          // gravitational lensing: the far side of the disk bends over the top of the hole,
+          // a fainter image wraps under it
+          for (const p of disk) {
+            const th = p.th + phase * p.v * 1.6 / Math.pow(p.r, 1.5);
+            const sn = Math.sin(th);
+            const u = clamp((p.r - 1.55) / 3.8);
+            const top = sn < 0;
+            const rho = R * (top ? 1.06 + 0.42 * Math.pow(u, 0.8) : 1.04 + 0.16 * Math.pow(u, 0.8));
+            const ang = top ? th : th;
+            const x = CX + Math.cos(ang) * rho,
+              y = cy + Math.sin(ang) * rho;
+            const a = clamp((top ? 0.62 : 0.26) * bright * (1.25 - u) * (0.55 + 0.45 * Math.abs(sn)));
+            ctx.fillStyle = tempColor(u, a);
+            ctx.fillRect(x, y, p.s * 0.9, p.s * 0.9);
+          }
+          // lensed image of the far disk: a halo hugging the shadow, brightest top & bottom
+          for (const h of halo) {
+            const a0 = h.a + phase * 0.35;
+            const rr = R * h.r;
+            const x = CX + Math.cos(a0) * rr,
+              y = cy + Math.sin(a0) * rr;
+            const tb = 0.35 + 0.65 * Math.abs(Math.sin(a0));
+            const a = clamp(0.7 * bright * tb * (1.5 - h.r));
+            ctx.fillStyle = tempColor(clamp((h.r - 1.04) * 1.6), a);
+            ctx.fillRect(x, y, h.s, h.s);
+          }
+          ctx.globalCompositeOperation = "source-over";
+          // event horizon (shadow)
+          ctx.fillStyle = "#000000";
+          ctx.beginPath();
+          ctx.arc(CX, cy, R, 0, Math.PI * 2);
+          ctx.fill();
+          // photon ring
+          ctx.globalCompositeOperation = "lighter";
+          for (let k = 0; k < 4; k++) {
+            ctx.strokeStyle = `rgba(255,${200 - k * 25},${150 - k * 30},${(0.5 * bright / (k + 1)).toFixed(3)})`;
+            ctx.lineWidth = 2 + k * 3;
+            ctx.beginPath();
+            ctx.arc(CX, cy, R * 1.02 + k * 1.5, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+          // front half of the disk (crosses in front of the shadow)
+          for (const p of disk) {
+            const q = project(p, DR);
+            if (!q.front) continue;
+            const dop = 1 + 0.55 * -q.cos;
+            const a = clamp(0.75 * bright * dop * (1.25 - (p.r - 1.55) / 4.5));
+            ctx.fillStyle = tempColor(clamp((p.r - 1.55) / 3.8), a);
+            ctx.fillRect(q.X, q.Y, p.s, p.s);
+          }
+          ctx.globalCompositeOperation = "source-over";
+        }
+
+        // one driver tween: every canvas frame is a pure function of time
+        const clock = { t: 0 };
+        draw(0);
+        tl.fromTo(clock, { t: 0 }, { t: DUR, duration: DUR, ease: "none", onUpdate: () => draw(clock.t) }, 0);
+
+        // ---------- HUD ----------
+        const typeLine = (id, at, dur) => tl.fromTo(id, { width: 0 }, { width: 760, duration: dur, ease: "steps(28)" }, at);
+        typeLine("#hl1", 0.5, 0.6);
+        typeLine("#hl2", 1.3, 0.5);
+        typeLine("#hl3", 2.1, 0.6);
+        typeLine("#hl4", 2.85, 0.35);
+        tl.fromTo("#hl4", { opacity: 1 }, { opacity: 0.35, duration: 0.16, ease: "steps(1)", yoyo: true, repeat: 5 }, 3.2);
+        tl.fromTo("#hud-corner", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0.6);
+        tl.to(["#hud", "#hud-corner"], { opacity: 0, x: -20, duration: 0.5, ease: "power2.in" }, 5.0);
+
+        // ---------- cinematic lines ----------
+        tl.fromTo("#l1", { opacity: 0, y: 24, scale: 1.08 }, { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power3.out" }, 3.65);
+        tl.to("#l1", { opacity: 0, y: -16, duration: 0.4, ease: "power2.in" }, 5.05);
+        tl.fromTo("#l2", { opacity: 0, y: 24, scale: 1.08 }, { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power3.out" }, 5.45);
+        tl.to("#l2", { opacity: 0, scale: 0.8, duration: 0.5, ease: "power3.in" }, 6.95);
+
+        // ---------- collapse shake, flash, shockwaves ----------
+        tl.fromTo("#stage", { x: 0, y: 0 }, { keyframes: { x: [0, -4, 5, -7, 8, -10, 6, -3, 0], y: [0, 3, -5, 6, -6, 9, -4, 2, 0] }, duration: 1.0, ease: "none" }, 7.0);
+        tl.fromTo("#stage", { scale: 1 }, { keyframes: { scale: [1, 1.06, 0.98, 1] }, duration: 0.9, ease: "power2.out", immediateRender: false }, T_BANG);
+        tl.fromTo("#flash", { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "power2.in" }, T_BANG - 0.1);
+        tl.to("#flash", { opacity: 0, duration: 0.9, ease: "power2.out" }, T_BANG + 0.05);
+        tl.fromTo("#ring1", { scale: 0.05, opacity: 1 }, { scale: 6.5, opacity: 0, immediateRender: false, duration: 1.4, ease: "power3.out" }, T_BANG);
+        tl.fromTo("#ring2", { scale: 0.05, opacity: 0.9 }, { scale: 4.2, opacity: 0, immediateRender: false, duration: 1.1, ease: "power2.out" }, T_BANG + 0.12);
+
+        // ---------- logo ----------
+        tl.fromTo("#dsl", { scale: 1.9, opacity: 0, filter: "blur(18px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.55, ease: "power4.out" }, 8.05);
+        tl.fromTo("#dsl-r", { x: -26, opacity: 0.9 }, { x: 0, opacity: 0, duration: 0.6, ease: "power3.out" }, 8.1);
+        tl.fromTo("#dsl-o", { x: 26, opacity: 0.9 }, { x: 0, opacity: 0, duration: 0.6, ease: "power3.out" }, 8.1);
+        tl.fromTo("#elite", { opacity: 0, scaleX: 1.6 }, { opacity: 1, scaleX: 1, duration: 0.9, ease: "power3.out" }, 8.45);
+        tl.fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power3.inOut" }, 8.9);
+        tl.fromTo("#sub", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 9.1);
+        tl.fromTo("#cta-tag", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 10.4);
+        tl.fromTo("#cta", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 11.3);
+        tl.fromTo("#cta", { opacity: 1 }, { opacity: 0.25, duration: 0.45, ease: "sine.inOut", yoyo: true, repeat: 3, immediateRender: false }, 11.7);
+        tl.fromTo("#logo", { scale: 1 }, { scale: 1.04, duration: 5.3, ease: "sine.inOut" }, 8.2);
+        tl.fromTo("#fadeout", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power1.in" }, 13.0);
+
+        window.__timelines["main"] = tl;
+      })();
+    </script>
+  </body>
+</html>
