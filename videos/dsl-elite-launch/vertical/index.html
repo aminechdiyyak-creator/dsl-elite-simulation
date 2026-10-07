@@ -2,15 +2,74 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=1920, height=1080" />
-    <title>DSL Elite — Launch Cinematic</title>
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>DSL Elite — Launch Cinematic (9:16)</title>
     <script src="vendor/gsap.min.js"></script>
     <link rel="stylesheet" href="cinematic.css" />
+    <style>
+      /* 9:16 framing overrides */
+      /* font families declared inline so the compiler embeds them (it does not follow the linked sheet here) */
+      #root,
+      .dsl,
+      .cine,
+      #elite,
+      #cta-tag {
+        font-family: "Montserrat", sans-serif;
+      }
+      #hud,
+      #hud-corner,
+      #sub,
+      #cta {
+        font-family: "JetBrains Mono", monospace;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+      }
+      #space {
+        width: 1080px;
+        height: 1920px;
+      }
+      #hud {
+        left: 70px;
+        top: 150px;
+        width: 940px;
+      }
+      #hud-corner {
+        right: auto;
+        left: 70px;
+        top: 390px;
+        text-align: left;
+      }
+      .cine {
+        bottom: 470px;
+        padding: 0 60px;
+        font-size: 50px;
+        line-height: 1.25;
+      }
+      .ring {
+        left: 540px;
+        top: 960px;
+      }
+      #logo {
+        top: 690px;
+      }
+      #rule {
+        width: 560px;
+      }
+      #cta-tag {
+        top: 1430px;
+      }
+      #cta {
+        top: 1500px;
+      }
+    </style>
   </head>
   <body>
-    <div id="root" data-composition-id="main" data-start="0" data-duration="13.5" data-width="1920" data-height="1080">
+    <div id="root" data-composition-id="main" data-start="0" data-duration="13.5" data-width="1080" data-height="1920" data-hole-scale="0.82" data-reborn-y="815">
       <div id="stage">
-        <canvas id="space" width="1920" height="1080"></canvas>
+        <canvas id="space" width="1080" height="1920"></canvas>
         <div id="vignette"></div>
         <div class="ring" id="ring1"></div>
         <div class="ring" id="ring2"></div>

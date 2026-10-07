@@ -23,6 +23,9 @@ dans le style de la DSL Academy, et du son.
 - Sound design synthétisé (tools/make_sfx.py) : drone, bips HUD, riser, implosion, impact,
   scintillement, whoosh, carillon start.
 
+- Voix off FR (HyperFrames TTS, Kokoro ff_siwis) : 4 répliques (assets/vo/).
+- Version verticale 9:16 dans vertical/ (même script cinematic.js, cadrage différent).
+
 ## Notes
 
 - Couleurs reprises de l'app DSL Elite (#050505, #ff8c42, #ff4757). Sora n'étant pas embarquée,
