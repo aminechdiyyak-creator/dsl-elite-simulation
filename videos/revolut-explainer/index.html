@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>Revolut — Explainer (concept)</title>
+    <script src="vendor/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #000;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #000;
+        font-family: "Inter", sans-serif;
+        color: #fff;
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+      #glow {
+        position: absolute;
+        left: 90px;
+        top: 700px;
+        width: 900px;
+        height: 900px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(64, 98, 255, 0.28) 0%, rgba(160, 70, 255, 0.12) 40%, rgba(0, 0, 0, 0) 70%);
+      }
+
+      /* ---------- titles ---------- */
+      .title {
+        position: absolute;
+        left: 70px;
+        right: 70px;
+        top: 175px;
+        text-align: center;
+        font-family: "Inter", sans-serif;
+        font-weight: 900;
+        font-size: 84px;
+        line-height: 1.04;
+        letter-spacing: -0.035em;
+        color: #fff;
+      }
+      .title .grad {
+        color: #8fa8ff;
+      }
+      .legal {
+        position: absolute;
+        left: 60px;
+        right: 60px;
+        bottom: 34px;
+        text-align: center;
+        font-size: 19px;
+        line-height: 1.35;
+        color: #a6a6ad;
+      }
+      #chips {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 440px;
+        display: flex;
+        justify-content: center;
+        gap: 14px;
+      }
+      .chip {
+        display: block;
+        padding: 12px 24px;
+        border-radius: 999px;
+        background: #1c1c22;
+        border: 1px solid #2e2e38;
+        font-size: 26px;
+        font-weight: 700;
+        color: #e6e8f2;
+      }
+
+      /* ---------- hero card ---------- */
+      .card {
+        position: absolute;
+        width: 760px;
+        height: 480px;
+        border-radius: 44px;
+        background: linear-gradient(135deg, #1f3cff 0%, #6a35ff 42%, #c23cff 70%, #ff5fa2 100%);
+        box-shadow: 0 40px 120px rgba(90, 60, 255, 0.45);
+        overflow: hidden;
+      }
+      .card .brand {
+        position: absolute;
+        left: 52px;
+        top: 44px;
+        font-weight: 700;
+        font-size: 50px;
+        letter-spacing: -0.02em;
+        color: rgba(255, 255, 255, 0.95);
+      }
+      .card .chipgold {
+        position: absolute;
+        right: 64px;
+        top: 190px;
+        width: 92px;
+        height: 70px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #e9e2d0, #a89f88);
+      }
+      .card .num {
+        position: absolute;
+        left: 52px;
+        bottom: 46px;
+        font-weight: 700;
+        font-size: 34px;
+        letter-spacing: 0.12em;
+        color: rgba(255, 255, 255, 0.9);
+      }
+      .card .shine {
+        position: absolute;
+        left: -300px;
+        top: -100px;
+        width: 160px;
+        height: 700px;
+        background: rgba(255, 255, 255, 0.28);
+        transform: rotate(18deg);
+      }
+      #hero-wrap {
+        position: absolute;
+        left: 160px;
+        top: 760px;
+        width: 760px;
+        height: 480px;
+        perspective: 1600px;
+      }
+      #hero-title {
+        position: absolute;
+        left: 60px;
+        right: 60px;
+        top: 1130px;
+        text-align: center;
+        font-weight: 900;
+        font-size: 92px;
+        line-height: 1.02;
+        letter-spacing: -0.04em;
+      }
+      #hero-title span {
+        display: block;
+      }
+
+      /* ---------- phone ---------- */
+      #phone {
+        position: absolute;
+        left: 240px;
+        top: 600px;
+        width: 600px;
+        height: 1240px;
+        border-radius: 76px;
+        background: #1b1b20;
+        box-shadow: 0 0 0 2px #34343c, 0 50px 140px rgba(0, 0, 0, 0.8);
+        opacity: 0;
+      }
+      #screen {
+        position: absolute;
+        left: 18px;
+        top: 18px;
+        width: 564px;
+        height: 1204px;
+        border-radius: 60px;
+        background: #0b0b0e;
+        overflow: hidden;
+      }
+      #island {
+        position: absolute;
+        left: 222px;
+        top: 20px;
+        width: 120px;
+        height: 36px;
+        border-radius: 20px;
+        background: #000;
+        z-index: 5;
+      }
+      .scr {
+        position: absolute;
+        inset: 0;
+        padding: 90px 30px 30px;
+        opacity: 0;
+      }
+      .muted {
+        color: #9a9aa6;
+      }
+      .big {
+        font-weight: 900;
+        font-size: 92px;
+        letter-spacing: -0.04em;
+        line-height: 1;
+      }
+      .pill {
+        display: inline-block;
+        padding: 12px 28px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.16);
+        font-weight: 700;
+        font-size: 24px;
+      }
+      .panel {
+        border-radius: 30px;
+        background: #1a1a20;
+        padding: 22px 24px;
+        margin-top: 18px;
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 14px 0;
+      }
+      .ico {
+        flex: 0 0 auto;
+        width: 64px;
+        height: 64px;
+        border-radius: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-size: 28px;
+        color: #fff;
+      }
+      .rt {
+        flex: 1;
+      }
+      .rt b {
+        display: block;
+        font-size: 27px;
+        font-weight: 700;
+      }
+      .rt span {
+        display: block;
+        font-size: 21px;
+        color: #9a9aa6;
+        margin-top: 4px;
+      }
+      .amt {
+        font-size: 27px;
+        font-weight: 700;
+      }
+      .pos {
+        color: #43d39e;
+      }
+
+      /* home */
+      #s-home .head {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 564px;
+        height: 560px;
+        background: linear-gradient(160deg, #2a3cff 0%, #6b3bff 45%, #b043e6 100%);
+      }
+      #s-home .inner {
+        position: relative;
+        text-align: center;
+        padding-top: 70px;
+      }
+      .actions {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 40px;
+      }
+      .act {
+        text-align: center;
+        font-size: 20px;
+        font-weight: 700;
+      }
+      .act i {
+        display: block;
+        width: 74px;
+        height: 74px;
+        margin: 0 auto 10px;
+        border-radius: 37px;
+        background: rgba(255, 255, 255, 0.2);
+        font-style: normal;
+        font-size: 34px;
+        line-height: 74px;
+      }
+      #notif {
+        position: absolute;
+        left: 22px;
+        right: 22px;
+        top: 70px;
+        z-index: 4;
+        border-radius: 30px;
+        background: rgba(40, 40, 48, 0.96);
+        padding: 20px 22px;
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        opacity: 0;
+      }
+
+      /* onboarding */
+      .step {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 26px 24px;
+        margin-top: 18px;
+        border-radius: 28px;
+        background: #17171d;
+        font-size: 30px;
+        font-weight: 700;
+      }
+      .tick {
+        width: 54px;
+        height: 54px;
+        border-radius: 27px;
+        border: 3px solid #3a3a46;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        color: #0b0b0e;
+      }
+      .tick-on {
+        position: absolute;
+        inset: -3px;
+        border-radius: 27px;
+        background: #43d39e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        font-weight: 900;
+        color: #0b0b0e;
+        opacity: 0;
+      }
+
+      /* exchange */
+      .fxbox {
+        border-radius: 30px;
+        background: #1a1a20;
+        padding: 28px 26px;
+        margin-top: 18px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      .flag {
+        width: 76px;
+        height: 76px;
+        border-radius: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-size: 36px;
+      }
+      .fxamt {
+        margin-left: auto;
+        font-size: 46px;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+      }
+      #fx-btn {
+        margin-top: 34px;
+        height: 96px;
+        border-radius: 48px;
+        background: #3b5bff;
+        text-align: center;
+        line-height: 96px;
+        font-size: 32px;
+        font-weight: 900;
+      }
+
+      /* security */
+      #mini-card {
+        position: relative;
+        width: 504px;
+        height: 318px;
+        border-radius: 30px;
+        background: linear-gradient(135deg, #1f3cff 0%, #6a35ff 45%, #c23cff 75%, #ff5fa2 100%);
+        overflow: hidden;
+      }
+      #frost {
+        position: absolute;
+        inset: 0;
+        background: rgba(170, 200, 255, 0.55);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        font-weight: 900;
+        color: #0b1030;
+        opacity: 0;
+      }
+      .toggle {
+        position: relative;
+        width: 96px;
+        height: 56px;
+        border-radius: 28px;
+        background: #3a3a46;
+        flex: 0 0 auto;
+      }
+      #knob {
+        position: absolute;
+        left: 6px;
+        top: 6px;
+        width: 44px;
+        height: 44px;
+        border-radius: 22px;
+        background: #fff;
+      }
+      #toggle-on {
+        position: absolute;
+        inset: 0;
+        border-radius: 28px;
+        background: #3b5bff;
+        opacity: 0;
+      }
+
+      /* budget */
+      #donut {
+        display: block;
+        margin: 10px auto 0;
+      }
+      .bar {
+        height: 18px;
+        border-radius: 9px;
+        background: #2a2a33;
+        overflow: hidden;
+        margin-top: 12px;
+      }
+      #bar-fill {
+        width: 100%;
+        height: 100%;
+        background: #43d39e;
+        transform-origin: 0% 50%;
+      }
+
+      /* invest */
+      #s-inv .head {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 564px;
+        height: 620px;
+        background: linear-gradient(180deg, #0f5f6e 0%, #0b2a3a 70%, #0b0b0e 100%);
+      }
+      #fee-pill {
+        position: absolute;
+        right: 26px;
+        top: 96px;
+        padding: 10px 20px;
+        border-radius: 999px;
+        background: #43d39e;
+        color: #062018;
+        font-weight: 900;
+        font-size: 24px;
+        opacity: 0;
+      }
+
+      /* end card */
+      #end-wrap {
+        position: absolute;
+        left: 160px;
+        top: 560px;
+        width: 760px;
+        height: 480px;
+        perspective: 1600px;
+      }
+      #end-title {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 1120px;
+        text-align: center;
+        font-weight: 900;
+        font-size: 140px;
+        letter-spacing: -0.05em;
+        line-height: 1;
+      }
+      #end-sub {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 1290px;
+        text-align: center;
+        font-weight: 700;
+        font-size: 44px;
+        line-height: 1.2;
+        color: #d7dbea;
+      }
+      #stores {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 1470px;
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+      }
+      .store {
+        display: block;
+        padding: 22px 38px;
+        border-radius: 22px;
+        border: 2px solid #4a4a56;
+        font-weight: 700;
+        font-size: 30px;
+        color: #fff;
+      }
+      #fade {
+        position: absolute;
+        inset: 0;
+        background: #000;
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="29" data-width="1080" data-height="1920">
+      <div id="glow"></div>
+
+      <!-- ===== S1 hook ===== -->
+      <section id="s1" class="clip" data-start="0" data-duration="3.4" data-track-index="2">
+        <div id="hero-wrap">
+          <div class="card" id="hero-card">
+            <span class="brand">Revolut</span>
+            <span class="chipgold"></span>
+            <span class="num">•••• 2026</span>
+            <span class="shine" id="hero-shine"></span>
+          </div>
+        </div>
+        <div id="hero-title"><span id="ht1">Et si votre banque</span><span id="ht2">tenait dans</span><span id="ht3" class="grad" style="color: #8fa8ff">votre poche ?</span></div>
+      </section>
+
+      <!-- ===== titles per scene ===== -->
+      <section class="clip" data-start="3.3" data-duration="3.5" data-track-index="3">
+        <div class="title" id="t2">Ouvrez un compte en <span class="grad">quelques minutes</span></div>
+        <div id="chips"><span class="chip">Étudiants</span><span class="chip">Voyageurs</span><span class="chip">Familles</span><span class="chip">Freelances</span></div>
+      </section>
+      <section class="clip" data-start="6.8" data-duration="3.8" data-track-index="3">
+        <div class="title" id="t3">Payez partout, <span class="grad">en un instant</span></div>
+      </section>
+      <section class="clip" data-start="10.6" data-duration="4.0" data-track-index="3">
+        <div class="title" id="t4">Échangez des devises <span class="grad">sans frais cachés*</span></div>
+        <div class="legal">*Selon votre forfait et ses conditions. Taux et montants affichés à titre d’illustration.</div>
+      </section>
+      <section class="clip" data-start="14.6" data-duration="4.0" data-track-index="3">
+        <div class="title" id="t5">Votre argent protégé <span class="grad">24h/24, 7j/7</span></div>
+      </section>
+      <section class="clip" data-start="18.6" data-duration="3.8" data-track-index="3">
+        <div class="title" id="t6">Maîtrisez votre budget <span class="grad">au centime près</span></div>
+      </section>
+      <section class="clip" data-start="22.4" data-duration="3.6" data-track-index="3">
+        <div class="title" id="t7">Épargnez, investissez, <span class="grad">crypto dès 0 % de frais*</span></div>
+        <div class="legal">*Selon forfait et conditions. Investir comporte un risque de perte en capital. Montants illustratifs.</div>
+      </section>
+
+      <!-- ===== the phone (persistent, screens swapped by the timeline) ===== -->
+      <div id="phone">
+        <div id="screen">
+          <div id="island"></div>
+
+          <!-- onboarding -->
+          <div class="scr" id="s-onb">
+            <div style="font-size: 44px; font-weight: 900; letter-spacing: -0.03em">Créer mon compte</div>
+            <div class="muted" style="font-size: 24px; margin-top: 10px">3 étapes, depuis votre téléphone</div>
+            <div class="step"><span class="tick" style="position: relative"><span class="tick-on" id="tk1">✓</span></span>Numéro de téléphone</div>
+            <div class="step"><span class="tick" style="position: relative"><span class="tick-on" id="tk2">✓</span></span>Pièce d’identité + selfie</div>
+            <div class="step"><span class="tick" style="position: relative"><span class="tick-on" id="tk3">✓</span></span>Carte virtuelle prête</div>
+            <div id="ready" style="margin-top: 60px; text-align: center; font-size: 36px; font-weight: 900; color: #43d39e; opacity: 0">Compte ouvert ✓</div>
+          </div>
+
+          <!-- home -->
+          <div class="scr" id="s-home" style="padding: 0">
+            <div class="head"></div>
+            <div class="inner">
+              <div style="font-size: 24px; font-weight: 700; opacity: 0.85; margin-top: 30px" data-layout-allow-overlap>Personnel · EUR</div>
+              <div class="big" style="margin-top: 22px"><span id="bal">3 126</span> €</div>
+              <div style="margin-top: 24px"><span class="pill">Comptes</span></div>
+              <div class="actions">
+                <span class="act"><i>+</i>Ajouter</span><span class="act"><i>⇄</i>Échanger</span><span class="act"><i>≡</i>Détails</span><span class="act"><i>•••</i>Plus</span>
+              </div>
+            </div>
+            <div style="position: absolute; left: 22px; right: 22px; top: 600px">
+              <div class="panel">
+                <div class="row" id="tx-new" style="opacity: 0"><span class="ico" style="background: #8a5a2b">☕</span><span class="rt"><b>Café Lomi</b><span>À l’instant · Paris</span></span><span class="amt">−3,20 €</span></div>
+                <div class="row"><span class="ico" style="background: #2a8a6a">€</span><span class="rt"><b>Salaire</b><span>Dépôt mensuel</span></span><span class="amt pos">+2 550 €</span></div>
+                <div class="row"><span class="ico" style="background: #c0392b">N</span><span class="rt"><b>Streaming</b><span>Abonnement</span></span><span class="amt">−13,49 €</span></div>
+                <div class="row"><span class="ico" style="background: #3b5bff">J</span><span class="rt"><b>Compte joint</b><span>Loyer partagé</span></span><span class="amt">−835 €</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- notification -->
+          <div id="notif" data-layout-allow-occlusion>
+            <span class="ico" style="background: #3b5bff; width: 56px; height: 56px; font-size: 24px">R</span>
+            <span class="rt"><b style="font-size: 25px" data-layout-allow-overlap>Paiement accepté</b><span data-layout-allow-overlap>Café Lomi · −3,20 € · sans contact</span></span>
+          </div>
+
+          <!-- exchange -->
+          <div class="scr" id="s-fx">
+            <div style="font-size: 44px; font-weight: 900; letter-spacing: -0.03em">Échanger</div>
+            <div class="muted" style="font-size: 24px; margin-top: 10px" id="fx-rate">1 € = 1,0830 $</div>
+            <div class="fxbox"><span class="flag" style="background: #2a3cff">€</span><span><b style="font-size: 30px">EUR</b><span class="muted" style="display: block; font-size: 21px">Euro</span></span><span class="fxamt">−500,00</span></div>
+            <div style="text-align: center; font-size: 40px; margin-top: 10px; color: #8fa8ff">⇅</div>
+            <div class="fxbox">
+              <span class="flag" id="fx-flag" style="background: #1f9d6b">$</span>
+              <span><b style="font-size: 30px" id="fx-code">USD</b><span class="muted" style="display: block; font-size: 21px">En direct</span></span>
+              <span class="fxamt" id="fx-out">+541,50</span>
+            </div>
+            <div id="fx-btn">Échanger</div>
+            <div id="fx-done" style="margin-top: 26px; text-align: center; font-size: 32px; font-weight: 900; color: #43d39e; opacity: 0">Échangé en 1 seconde ✓</div>
+          </div>
+
+          <!-- security -->
+          <div class="scr" id="s-sec">
+            <div style="font-size: 44px; font-weight: 900; letter-spacing: -0.03em">Ma carte</div>
+            <div id="mini-card" style="margin-top: 24px">
+              <span style="position: absolute; left: 30px; top: 26px; font-weight: 700; font-size: 32px">Revolut</span>
+              <span style="position: absolute; left: 30px; bottom: 26px; font-weight: 700; font-size: 24px; letter-spacing: 0.12em">•••• 2026</span>
+              <div id="frost">🔒 Carte gelée</div>
+            </div>
+            <div class="panel">
+              <div class="row"><span class="ico" style="background: #2a3cff">❄</span><span class="rt"><b>Geler la carte</b><span>En un tap, dégelez quand vous voulez</span></span><span class="toggle"><span id="toggle-on"></span><span id="knob"></span></span></div>
+              <div class="row sec-row" style="opacity: 0"><span class="ico" style="background: #6a35ff">⚡</span><span class="rt"><b>Alertes en temps réel</b><span>À chaque paiement</span></span></div>
+              <div class="row sec-row" style="opacity: 0"><span class="ico" style="background: #c23cff">◎</span><span class="rt"><b>Cartes virtuelles</b><span>Jetables pour vos achats en ligne</span></span></div>
+              <div class="row sec-row" style="opacity: 0"><span class="ico" style="background: #1f9d6b">✓</span><span class="rt"><b>Assistance 24h/24</b><span>Dans l’app, 7j/7</span></span></div>
+            </div>
+          </div>
+
+          <!-- budget -->
+          <div class="scr" id="s-bud">
+            <div class="muted" style="font-size: 24px; font-weight: 700">Dépensé ce mois-ci</div>
+            <div class="big" style="font-size: 80px; margin-top: 8px"><span id="spent">1 276</span> €</div>
+            <svg id="donut" width="300" height="300" viewBox="0 0 300 300">
+              <circle cx="150" cy="150" r="110" fill="none" stroke="#24242c" stroke-width="38" />
+              <circle class="seg" cx="150" cy="150" r="110" fill="none" stroke="#3b5bff" stroke-width="38" />
+              <circle class="seg" cx="150" cy="150" r="110" fill="none" stroke="#c23cff" stroke-width="38" />
+              <circle class="seg" cx="150" cy="150" r="110" fill="none" stroke="#43d39e" stroke-width="38" />
+              <circle class="seg" cx="150" cy="150" r="110" fill="none" stroke="#ffb547" stroke-width="38" />
+            </svg>
+            <div class="panel" style="padding: 10px 24px">
+              <div class="row bud-row" style="opacity: 0"><span class="ico" style="background: #3b5bff; width: 22px; height: 22px"></span><span class="rt"><b>Loisirs</b></span><span class="amt">424 €</span></div>
+              <div class="row bud-row" style="opacity: 0"><span class="ico" style="background: #c23cff; width: 22px; height: 22px"></span><span class="rt"><b>Courses</b></span><span class="amt">412 €</span></div>
+              <div class="row bud-row" style="opacity: 0"><span class="ico" style="background: #43d39e; width: 22px; height: 22px"></span><span class="rt"><b>Restaurants</b></span><span class="amt">254 €</span></div>
+              <div class="row bud-row" style="opacity: 0"><span class="ico" style="background: #ffb547; width: 22px; height: 22px"></span><span class="rt"><b>Transport</b></span><span class="amt">186 €</span></div>
+            </div>
+            <div style="margin-top: 18px; font-size: 22px; font-weight: 700" class="muted">Budget mensuel · 1 500 €</div>
+            <div class="bar"><div id="bar-fill"></div></div>
+          </div>
+
+          <!-- invest / crypto / savings -->
+          <div class="scr" id="s-inv" style="padding: 0">
+            <div class="head"></div>
+            <div id="fee-pill">Frais dès 0 %*</div>
+            <div style="position: relative; padding: 110px 30px 0">
+              <div style="font-size: 22px; font-weight: 700; opacity: 0.8">Patrimoine investi</div>
+              <div class="big" style="font-size: 80px; margin-top: 10px"><span id="inv">1 780,05</span> €</div>
+              <div class="pos" style="font-size: 26px; font-weight: 700; margin-top: 8px">▲ +56,25 € · 3,16 %</div>
+              <svg width="504" height="230" viewBox="0 0 504 230" style="margin-top: 20px; display: block">
+                <path id="chart" d="M0 200 C40 190 60 150 90 160 S140 120 170 135 S220 80 250 100 S300 60 330 82 S380 40 410 55 S470 20 504 26" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" />
+              </svg>
+            </div>
+            <div style="position: absolute; left: 22px; right: 22px; top: 640px">
+              <div class="panel">
+                <div class="row inv-row" style="opacity: 0"><span class="ico" style="background: #f7931a">₿</span><span class="rt"><b>Bitcoin</b><span>Crypto</span></span><span class="amt pos">+2,4 %</span></div>
+                <div class="row inv-row" style="opacity: 0"><span class="ico" style="background: #3b5bff">ET</span><span class="rt"><b>ETF Monde</b><span>Plus de 6 000 actions et ETF</span></span><span class="amt pos">+0,8 %</span></div>
+                <div class="row inv-row" style="opacity: 0"><span class="ico" style="background: #2a8a6a">%</span><span class="rt"><b>Épargne</b><span>Intérêts versés chaque jour</span></span><span class="amt pos">+0,43 €</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- contactless terminal + card (S3) -->
+      <section id="s3fx" class="clip" data-start="6.8" data-duration="3.8" data-track-index="4">
+        <div id="term" style="position: absolute; left: 800px; top: 1530px; width: 250px; height: 340px; border-radius: 36px; background: #24242b; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7)">
+          <div style="position: absolute; left: 24px; right: 24px; top: 28px; height: 100px; border-radius: 18px; background: #0f2a1f; color: #43d39e; font-weight: 900; font-size: 36px; text-align: center; line-height: 100px" id="term-screen">3,20 €</div>
+          <div style="position: absolute; left: 0; right: 0; top: 170px; text-align: center; font-size: 70px; color: #8fa8ff" id="nfc">)))</div>
+        </div>
+        <div id="pay-card" class="card" style="left: 120px; top: 1650px; width: 300px; height: 190px; border-radius: 22px">
+          <span class="brand" style="font-size: 28px; left: 26px; top: 22px">Revolut</span>
+        </div>
+      </section>
+
+      <!-- ===== S8 end card ===== -->
+      <section id="s8" class="clip" data-start="25.9" data-duration="3.1" data-track-index="5">
+        <div id="end-wrap">
+          <div class="card" id="end-card">
+            <span class="brand">Revolut</span>
+            <span class="chipgold"></span>
+            <span class="num">•••• 2026</span>
+            <span class="shine" id="end-shine"></span>
+          </div>
+        </div>
+        <div id="end-title">Revolut</div>
+        <div id="end-sub">Rejoignez plus de 60 millions de clients. Inscription en quelques minutes.</div>
+        <div id="stores"><span class="store">Télécharger sur l’App Store</span><span class="store">Google Play</span></div>
+        <div class="legal">Concept publicitaire non officiel, non affilié à Revolut. Montants illustratifs, conditions selon forfait.</div>
+      </section>
+
+      <div id="fade"></div>
+
+      <audio id="score" src="assets/audio/score.wav" data-start="0" data-duration="29" data-track-index="7" data-volume="0.42"></audio>
+      <audio id="vo1" src="assets/vo/v1.wav" data-start="0.4" data-duration="2.20" data-track-index="8" data-volume="1"></audio>
+      <audio id="vo2" src="assets/vo/v2.wav" data-start="3.45" data-duration="1.96" data-track-index="8" data-volume="1"></audio>
+      <audio id="vo3" src="assets/vo/v3.wav" data-start="7.0" data-duration="1.69" data-track-index="8" data-volume="1"></audio>
+      <audio id="vo4" src="assets/vo/v4.wav" data-start="10.8" data-duration="2.69" data-track-index="8" data-volume="1"></audio>
+      <audio id="vo5" src="assets/vo/v5.wav" data-start="14.8" data-duration="3.20" data-track-index="8" data-volume="1"></audio>
+      <audio id="vo6" src="assets/vo/v6.wav" data-start="18.8" data-duration="2.26" data-track-index="8" data-volume="1"></audio>
+      <audio id="vo7" src="assets/vo/v7.wav" data-start="22.6" data-duration="2.52" data-track-index="8" data-volume="1"></audio>
+      <audio id="vo8" src="assets/vo/v8.wav" data-start="26.0" data-duration="2.99" data-track-index="8" data-volume="1"></audio>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const fmt = (v, dec = 0) => {
+        const [n, d] = v.toFixed(dec).split(".");
+        return n.replace(/\B(?=(\d{3})+(?!\d))/g, " ") + (d ? "," + d : "");
+      };
+      const counter = (id, from, to, at, dur, dec = 0) => {
+        const el = document.getElementById(id);
+        const o = { v: from };
+        tl.fromTo(o, { v: from }, { v: to, duration: dur, ease: "power2.out", immediateRender: false, onUpdate: () => (el.textContent = fmt(o.v, dec)) }, at);
+      };
+
+      // ambient glow breathing
+      tl.fromTo("#glow", { scale: 0.9, opacity: 0.7 }, { scale: 1.1, opacity: 1, duration: 3.6, ease: "sine.inOut", yoyo: true, repeat: 7 }, 0);
+
+      // ---------- S1 hook ----------
+      tl.fromTo("#hero-card", { rotationY: -85, rotationZ: -14, scale: 0.55, y: -200, opacity: 0 }, { rotationY: 0, rotationZ: -6, scale: 1, y: -260, opacity: 1, duration: 1.2, ease: "power3.out" }, 0.05);
+      tl.fromTo("#hero-shine", { x: 0 }, { x: 1300, duration: 1.0, ease: "power2.inOut" }, 0.9);
+      ["#ht1", "#ht2", "#ht3"].forEach((id, i) => tl.fromTo(id, { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "power4.out" }, 0.55 + i * 0.28));
+      tl.to("#hero-title", { opacity: 0, y: -40, duration: 0.35, ease: "power2.in" }, 2.75);
+      tl.to("#hero-card", { scale: 0.42, y: 330, rotationZ: 0, opacity: 0, duration: 0.6, ease: "power3.in" }, 2.75);
+
+      // ---------- phone ----------
+      tl.fromTo("#phone", { y: 260, opacity: 0, scale: 0.92 }, { y: 0, opacity: 1, scale: 1, duration: 0.7, ease: "power3.out" }, 2.95);
+      tl.to("#phone", { y: 200, opacity: 0, scale: 0.9, duration: 0.45, ease: "power2.in" }, 25.75);
+
+      const titles = [["#t2", 3.3], ["#t3", 6.8], ["#t4", 10.6], ["#t5", 14.6], ["#t6", 18.6], ["#t7", 22.4]];
+      titles.forEach(([id, at]) => tl.fromTo(id, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, at + 0.05));
+      tl.fromTo(".chip", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, stagger: 0.12, ease: "power3.out" }, 3.8);
+
+      const show = (id, at, from = 60) => tl.fromTo(id, { opacity: 0, x: from }, { opacity: 1, x: 0, duration: 0.4, ease: "power3.out", immediateRender: false }, at);
+      const hide = (id, at) => tl.to(id, { opacity: 0, x: -60, duration: 0.3, ease: "power2.in" }, at);
+
+      // S2 onboarding -> home
+      tl.set("#s-onb", { opacity: 1 }, 3.0);
+      ["#tk1", "#tk2", "#tk3"].forEach((id, i) => tl.fromTo(id, { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.25, ease: "back.out(2.5)" }, 4.6 + i * 0.6));
+      tl.fromTo("#ready", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3 }, 6.2);
+      hide("#s-onb", 6.45);
+      show("#s-home", 6.5);
+      counter("bal", 0, 3126, 6.55, 0.9);
+
+      // S3 contactless payment
+      tl.fromTo("#term", { x: 340, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 7.0);
+      tl.fromTo("#pay-card", { x: -420, rotation: -20, opacity: 0 }, { x: 560, rotation: 8, opacity: 1, duration: 0.85, ease: "power3.inOut" }, 7.15);
+      tl.fromTo("#nfc", { scale: 1, opacity: 0.4 }, { keyframes: { scale: [1, 1.5, 1], opacity: [0.4, 1, 0.4] }, duration: 0.5, ease: "none" }, 7.95);
+      tl.to("#term-screen", { backgroundColor: "#43d39e", color: "#062018", duration: 0.15 }, 8.05);
+      tl.to("#pay-card", { x: 0, rotation: -6, opacity: 0, duration: 0.6, ease: "power2.in" }, 8.9);
+      tl.fromTo("#notif", { y: -140, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "back.out(1.6)" }, 8.45);
+      tl.to("#notif", { y: -140, opacity: 0, duration: 0.35, ease: "power2.in" }, 9.9);
+      tl.fromTo("#tx-new", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.35 }, 8.7);
+      counter("bal", 3126, 3122.8, 8.6, 0.5, 2);
+
+      // S4 exchange
+      hide("#s-home", 10.55);
+      show("#s-fx", 10.65);
+      const fxStates = [["$", "USD", "+541,50", "#1f9d6b", "1 € = 1,0830 $"], ["£", "GBP", "+427,80", "#7a3cff", "1 € = 0,8556 £"], ["¥", "JPY", "+81 250", "#e0444e", "1 € = 162,50 ¥"], ["$", "USD", "+541,50", "#1f9d6b", "1 € = 1,0830 $"]];
+      fxStates.forEach(([sym, code, out, col, rate], i) => {
+        const at = 11.55 + i * 0.55;
+        tl.to("#fx-flag", { rotationY: 90, duration: 0.12, ease: "power1.in" }, at);
+        tl.set("#fx-flag", { backgroundColor: col }, at + 0.12);
+        tl.to("#fx-flag", { rotationY: 0, duration: 0.12, ease: "power1.out" }, at + 0.12);
+      });
+      // text swaps as discrete, seek-safe steps
+      const flagEl = document.getElementById("fx-flag"),
+        codeEl = document.getElementById("fx-code"),
+        outEl = document.getElementById("fx-out"),
+        rateEl = document.getElementById("fx-rate");
+      const fxStep = { v: 0 };
+      tl.fromTo(fxStep, { v: 0 }, { v: 3.999, duration: 2.2, ease: "none", immediateRender: false, onUpdate: () => {
+        const s = fxStates[Math.min(3, Math.floor(fxStep.v))];
+        flagEl.textContent = s[0]; codeEl.textContent = s[1]; outEl.textContent = s[2]; rateEl.textContent = s[4];
+      } }, 11.67);
+      tl.fromTo("#fx-btn", { scale: 1 }, { keyframes: { scale: [1, 0.94, 1] }, duration: 0.3, ease: "none" }, 13.4);
+      tl.to("#fx-btn", { backgroundColor: "#43d39e", color: "#062018", duration: 0.2 }, 13.55);
+      tl.fromTo("#fx-done", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.3 }, 13.6);
+
+      // S5 security
+      hide("#s-fx", 14.55);
+      show("#s-sec", 14.65);
+      tl.fromTo(".sec-row", { opacity: 0, x: 30 }, { opacity: 1, x: 0, duration: 0.3, stagger: 0.3, ease: "power2.out" }, 15.2);
+      tl.fromTo("#knob", { x: 0 }, { x: 40, duration: 0.18, ease: "power2.out" }, 16.3);
+      tl.fromTo("#toggle-on", { opacity: 0 }, { opacity: 1, duration: 0.18 }, 16.3);
+      tl.fromTo("#frost", { opacity: 0, scale: 1.08 }, { opacity: 1, scale: 1, duration: 0.35, ease: "power2.out" }, 16.32);
+      tl.fromTo("#mini-card", { x: 0 }, { keyframes: { x: [0, -10, 9, -6, 4, 0] }, duration: 0.4, ease: "none" }, 16.32);
+
+      // S6 budget
+      hide("#s-sec", 18.55);
+      show("#s-bud", 18.65);
+      counter("spent", 0, 1276, 19.0, 1.3);
+      const C = 2 * Math.PI * 110;
+      const parts = [424, 412, 254, 186];
+      let acc = 0;
+      document.querySelectorAll("#donut .seg").forEach((seg, i) => {
+        const len = (parts[i] / 1276) * C;
+        seg.setAttribute("stroke-dasharray", `${len.toFixed(1)} ${C.toFixed(1)}`);
+        seg.setAttribute("transform", `rotate(${-90 + (acc / 1276) * 360} 150 150)`);
+        acc += parts[i];
+        tl.fromTo(seg, { attr: { "stroke-dashoffset": len } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.3, ease: "power2.out" }, 19.4 + i * 0.3);
+      });
+      tl.fromTo(".bud-row", { opacity: 0, x: 30 }, { opacity: 1, x: 0, duration: 0.25, stagger: 0.3, ease: "power2.out" }, 19.45);
+      tl.fromTo("#bar-fill", { scaleX: 0 }, { scaleX: 0.85, duration: 0.8, ease: "power2.out" }, 20.6);
+
+      // S7 invest / crypto / savings
+      hide("#s-bud", 22.35);
+      show("#s-inv", 22.45);
+      const chart = document.getElementById("chart");
+      const CL = 620;
+      chart.setAttribute("stroke-dasharray", CL);
+      tl.fromTo(chart, { attr: { "stroke-dashoffset": CL } }, { attr: { "stroke-dashoffset": 0 }, duration: 1.8, ease: "power2.inOut" }, 22.8);
+      counter("inv", 1723.8, 1780.05, 22.8, 1.8, 2);
+      tl.fromTo(".inv-row", { opacity: 0, x: 30 }, { opacity: 1, x: 0, duration: 0.3, stagger: 0.4, ease: "power2.out" }, 23.6);
+      tl.fromTo("#fee-pill", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 25.0);
+
+      // ---------- S8 end card ----------
+      tl.fromTo("#end-card", { rotationY: 70, rotationZ: 10, scale: 0.6, opacity: 0 }, { rotationY: 0, rotationZ: -5, scale: 1, opacity: 1, duration: 0.9, ease: "power3.out" }, 26.0);
+      tl.fromTo("#end-shine", { x: 0 }, { x: 1300, duration: 1.0, ease: "power2.inOut" }, 26.7);
+      tl.fromTo("#end-title", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power4.out" }, 26.2);
+      tl.fromTo("#end-sub", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 26.6);
+      tl.fromTo(".store", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, stagger: 0.12, ease: "power3.out" }, 27.0);
+      tl.fromTo("#fade", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power1.in" }, 28.7);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
