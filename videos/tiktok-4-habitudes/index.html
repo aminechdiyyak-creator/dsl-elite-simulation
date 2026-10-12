@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>4 habitudes — TikTok</title>
+    <script src="vendor/gsap.min.js"></script>
+    <script src="photos.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #000;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #000;
+        font-family: "Inter", sans-serif;
+        color: #fff;
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+
+      /* TikTok-style caption: white, bold, thin black outline */
+      .tt {
+        font-family: "Inter", sans-serif;
+        font-weight: 800;
+        color: #fff;
+        text-align: center;
+        letter-spacing: -0.01em;
+        text-shadow:
+          2px 2px 0 #000,
+          -2px -2px 0 #000,
+          2px -2px 0 #000,
+          -2px 2px 0 #000,
+          0 2px 0 #000,
+          0 -2px 0 #000,
+          2px 0 0 #000,
+          -2px 0 0 #000,
+          0 6px 18px rgba(0, 0, 0, 0.55);
+      }
+
+      /* ---------- hero ---------- */
+      #hero-scene {
+        position: absolute;
+        inset: 0;
+        transform-origin: 50% 45%;
+      }
+      #hero-scene svg,
+      #hero-scene img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      #hero-text {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 760px;
+        font-size: 88px;
+        line-height: 1.12;
+      }
+      #hero-text span {
+        display: inline-block;
+      }
+
+      /* ---------- grids ---------- */
+      .grid {
+        position: absolute;
+        inset: 0;
+        background: #000;
+      }
+      .tile {
+        position: absolute;
+        width: 538px;
+        height: 958px;
+        overflow: hidden;
+        background: #0b0b0f;
+      }
+      .tile .kb {
+        position: absolute;
+        inset: 0;
+      }
+      .tile .art,
+      .tile img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .tile .icon {
+        position: absolute;
+        left: 159px;
+        top: 500px;
+        width: 220px;
+        height: 220px;
+        overflow: visible;
+        filter: drop-shadow(0 0 22px rgba(255, 255, 255, 0.28));
+      }
+      .tile .shade {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 50% 42%, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0.55) 100%);
+      }
+      .tile .label {
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        top: 382px;
+        font-size: 56px;
+        line-height: 1.08;
+      }
+      .caption {
+        position: absolute;
+        left: 40px;
+        right: 40px;
+        top: 922px;
+        font-size: 64px;
+        line-height: 1.1;
+      }
+      #flash {
+        position: absolute;
+        inset: 0;
+        background: #fff;
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="15" data-width="1080" data-height="1920">
+      <!-- 1. Hero -->
+      <section id="s0" class="clip" data-start="0" data-duration="3" data-track-index="0">
+        <div id="hero-scene"></div>
+        <div id="hero-text" class="tt" data-layout-allow-overlap data-layout-allow-occlusion>
+          <span>4&nbsp;habitudes,</span> <span>c'est tout ce</span> <span>qu'il te faut.</span>
+        </div>
+      </section>
+
+      <!-- 2-5. Grids (tiles built below from SLIDES) -->
+      <section id="s1" class="clip" data-start="3" data-duration="3" data-track-index="0"><div class="grid"></div></section>
+      <section id="s2" class="clip" data-start="6" data-duration="3" data-track-index="0"><div class="grid"></div></section>
+      <section id="s3" class="clip" data-start="9" data-duration="3" data-track-index="0"><div class="grid"></div></section>
+      <section id="s4" class="clip" data-start="12" data-duration="3" data-track-index="0"><div class="grid"></div></section>
+
+      <div id="flash-layer" class="clip" data-start="0" data-duration="15" data-track-index="1"><div id="flash"></div></div>
+
+      <audio id="score" src="assets/audio/score.wav" data-start="0" data-duration="15" data-track-index="2" data-volume="0.9"></audio>
+    </div>
+
+    <script>
+      const PHOTOS = window.PHOTOS || {};
+      const SVGNS = "http://www.w3.org/2000/svg";
+
+      // ---------------------------------------------------------------- content
+      const ICONS = {
+        investir: '<polyline points="6,48 22,32 32,40 54,16"/><polyline points="42,16 54,16 54,28"/><line x1="6" y1="57" x2="58" y2="57"/>',
+        coder: '<polyline points="22,18 8,32 22,46"/><polyline points="42,18 56,32 42,46"/><line x1="36" y1="12" x2="28" y2="52"/>',
+        contenu: '<rect x="6" y="18" width="38" height="28" rx="4"/><polygon points="44,27 58,19 58,45 44,37"/><circle cx="16" cy="27" r="2.5" fill="#ff3b5c" stroke="none"/>',
+        vendre: '<path d="M8 22 L32 10 L56 22 L56 46 L32 58 L8 46 Z"/><path d="M8 22 L32 34 L56 22"/><line x1="32" y1="34" x2="32" y2="58"/><line x1="20" y1="16" x2="44" y2="28"/>',
+        boxe: '<path d="M18 30 C17 16 28 9 39 11 C51 13 55 24 52 36 L50 44 L22 44 L20 39 C13 39 11 30 18 30 Z"/><rect x="22" y="44" width="28" height="10" rx="2"/><path d="M29 24 C34 21 40 21 45 25"/>',
+        muscu: '<line x1="18" y1="32" x2="46" y2="32"/><rect x="10" y="20" width="8" height="24" rx="2"/><rect x="46" y="20" width="8" height="24" rx="2"/><line x1="5" y1="26" x2="5" y2="38"/><line x1="59" y1="26" x2="59" y2="38"/>',
+        natation: '<path d="M4 22 q7 -7 14 0 t14 0 t14 0 t14 0"/><path d="M4 34 q7 -7 14 0 t14 0 t14 0 t14 0"/><path d="M4 46 q7 -7 14 0 t14 0 t14 0 t14 0"/>',
+        sport: '<circle cx="32" cy="32" r="24"/><polygon points="32,22 41,29 38,40 26,40 23,29"/><line x1="32" y1="22" x2="32" y2="8"/><line x1="41" y1="29" x2="54" y2="24"/><line x1="38" y1="40" x2="46" y2="52"/><line x1="26" y1="40" x2="18" y2="52"/><line x1="23" y1="29" x2="10" y2="24"/>',
+        design: '<path d="M20 8 L44 8 L50 30 L32 58 L14 30 Z"/><line x1="32" y1="58" x2="32" y2="34"/><circle cx="32" cy="30" r="4"/>',
+        montage: '<rect x="10" y="6" width="44" height="52" rx="3"/><line x1="19" y1="6" x2="19" y2="58"/><line x1="45" y1="6" x2="45" y2="58"/><polygon points="27,23 39,32 27,41"/><line x1="10" y1="16" x2="19" y2="16"/><line x1="10" y1="27" x2="19" y2="27"/><line x1="10" y1="38" x2="19" y2="38"/><line x1="10" y1="49" x2="19" y2="49"/><line x1="45" y1="16" x2="54" y2="16"/><line x1="45" y1="27" x2="54" y2="27"/><line x1="45" y1="38" x2="54" y2="38"/><line x1="45" y1="49" x2="54" y2="49"/>',
+        jeux: '<circle cx="32" cy="15" r="7"/><path d="M26 24 L38 24 L36 30 L40 46 L24 46 L28 30 Z"/><rect x="16" y="46" width="32" height="9" rx="2"/>',
+        competences: '<path d="M42 8 a12 12 0 0 0 -10 18 L10 48 a5 5 0 0 0 7 7 L39 33 a12 12 0 0 0 18 -10 l-8 8 l-7 -2 l-2 -7 Z"/>',
+        journal: '<rect x="10" y="8" width="34" height="48" rx="3"/><line x1="16" y1="8" x2="16" y2="56"/><line x1="22" y1="20" x2="38" y2="20"/><line x1="22" y1="28" x2="38" y2="28"/><line x1="22" y1="36" x2="32" y2="36"/><line x1="54" y1="12" x2="54" y2="46"/><polyline points="51,46 54,53 57,46"/>',
+        lecture: '<path d="M32 16 C24 10 14 10 6 12 L6 52 C14 50 24 50 32 56 C40 50 50 50 58 52 L58 12 C50 10 40 10 32 16 Z"/><line x1="32" y1="16" x2="32" y2="56"/>',
+        etudes: '<polygon points="32,12 60,24 32,36 4,24"/><path d="M16 30 L16 44 C24 52 40 52 48 44 L48 30"/><line x1="58" y1="25" x2="58" y2="42"/>',
+        langues: '<path d="M6 8 h30 a4 4 0 0 1 4 4 v16 a4 4 0 0 1 -4 4 h-18 l-8 7 v-7 h-4 a4 4 0 0 1 -4 -4 v-16 a4 4 0 0 1 4 -4 z"/><path d="M58 30 v14 a4 4 0 0 1 -4 4 h-2 v7 l-8 -7 h-14 a4 4 0 0 1 -4 -4 v-6"/><text x="21" y="26" font-family="Inter" font-weight="700" font-size="14" text-anchor="middle" fill="#fff" stroke="none">Aa</text><text x="43" y="44" font-family="Inter" font-weight="700" font-size="11" text-anchor="middle" fill="#fff" stroke="none">あ</text>',
+      };
+
+      // [slot, label, icon, hue A, hue B]
+      const SLIDES = [
+        {
+          caption: "Une pour gagner<br>de l'argent.",
+          tiles: [
+            ["argent-investir", "Investir", "investir", "#0f3d2e", "#03110c"],
+            ["argent-coder", "Coder / IA", "coder", "#13294b", "#050a16"],
+            ["argent-contenu", "Créer du contenu", "contenu", "#3a1630", "#10050d"],
+            ["argent-vendre", "Vendre", "vendre", "#3d2a0f", "#120b03"],
+          ],
+        },
+        {
+          caption: "Une pour<br>ton corps.",
+          tiles: [
+            ["corps-boxe", "Boxe", "boxe", "#4a0f12", "#140304"],
+            ["corps-muscu", "Muscu", "muscu", "#2b2b30", "#08080a"],
+            ["corps-natation", "Natation", "natation", "#0b3550", "#020d16"],
+            ["corps-sport", "Sport", "sport", "#173d14", "#051104"],
+          ],
+        },
+        {
+          caption: "Une pour<br>ta créativité.",
+          tiles: [
+            ["crea-design", "Design", "design", "#33155a", "#0b0418"],
+            ["crea-montage", "Montage", "montage", "#4a2a0c", "#140a02"],
+            ["crea-jeux", "Jeux de réflexion", "jeux", "#1d2f45", "#060b12"],
+            ["crea-competences", "Nouvelles compétences", "competences", "#3f1d12", "#110603"],
+          ],
+        },
+        {
+          caption: "Une pour<br>ton esprit.",
+          tiles: [
+            ["esprit-journal", "Journal", "journal", "#3b2f1c", "#100c06"],
+            ["esprit-lecture", "Lecture", "lecture", "#1a2a40", "#05090f"],
+            ["esprit-etudes", "Études", "etudes", "#26203f", "#08060f"],
+            ["esprit-langues", "Apprendre une langue", "langues", "#0f3838", "#031010"],
+          ],
+        },
+      ];
+      const POS = [
+        [0, 0],
+        [542, 0],
+        [0, 962],
+        [542, 962],
+      ];
+
+      // ---------------------------------------------------------------- build DOM
+      function tileArt(id, a, b, icon) {
+        return (
+          `<svg class="art" viewBox="0 0 538 958" preserveAspectRatio="none">` +
+          `<defs><radialGradient id="g-${id}" cx="50%" cy="58%" r="75%"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></radialGradient>` +
+          `<radialGradient id="l-${id}" cx="70%" cy="12%" r="55%"><stop offset="0" stop-color="#fff" stop-opacity="0.16"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>` +
+          `<rect width="538" height="958" fill="url(#g-${id})"/><rect width="538" height="958" fill="url(#l-${id})"/></svg>` +
+          `<svg class="icon" viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${ICONS[icon]}</svg>`
+        );
+      }
+
+      const GRIDS = Array.from(document.querySelectorAll(".grid"));
+      SLIDES.forEach((s, si) => {
+        const grid = GRIDS[si];
+        let html = "";
+        s.tiles.forEach(([slot, label, icon, a, b], ti) => {
+          const [x, y] = POS[ti];
+          const visual = PHOTOS[slot] ? `<img src="${PHOTOS[slot]}" alt="">` : tileArt(slot, a, b, icon);
+          html +=
+            `<div class="tile" style="left:${x}px;top:${y}px">` +
+            `<div class="kb" data-layout-allow-overflow>${visual}</div><div class="shade"></div>` +
+            `<div class="label tt" data-layout-allow-overlap data-layout-allow-occlusion>${label}</div></div>`;
+        });
+        html += `<div class="caption tt" data-layout-allow-overlap data-layout-allow-occlusion>${s.caption}</div>`;
+        grid.innerHTML = html;
+      });
+
+      // Hero: photo if provided, otherwise a window over the city at golden hour
+      (function buildHero() {
+        const scene = document.getElementById("hero-scene");
+        if (PHOTOS.hero) {
+          scene.innerHTML = `<img src="${PHOTOS.hero}" alt="">`;
+          return;
+        }
+        // deterministic skyline
+        let seed = 11;
+        const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+        let far = "",
+          near = "",
+          lights = "";
+        for (let x = -20; x < 1100; ) {
+          const w = 50 + rnd() * 70,
+            h = 160 + rnd() * 320;
+          far += `<rect x="${x.toFixed(0)}" y="${(1240 - h).toFixed(0)}" width="${w.toFixed(0)}" height="${(h + 40).toFixed(0)}"/>`;
+          x += w + 6;
+        }
+        for (let x = -30; x < 1100; ) {
+          const w = 70 + rnd() * 110,
+            h = 120 + rnd() * 380;
+          const top = 1300 - h;
+          near += `<rect x="${x.toFixed(0)}" y="${top.toFixed(0)}" width="${w.toFixed(0)}" height="${(h + 40).toFixed(0)}"/>`;
+          for (let wy = top + 24; wy < 1290; wy += 34)
+            for (let wx = x + 12; wx < x + w - 14; wx += 26)
+              if (rnd() > 0.72) lights += `<rect x="${wx.toFixed(0)}" y="${wy.toFixed(0)}" width="10" height="14"/>`;
+          x += w + 8;
+        }
+        scene.innerHTML = `
+<svg viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b2140"/><stop offset="0.38" stop-color="#5a4166"/>
+      <stop offset="0.56" stop-color="#d9775a"/><stop offset="0.66" stop-color="#f4b26a"/><stop offset="1" stop-color="#f4b26a"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.62" cy="0.62" r="0.32"><stop offset="0" stop-color="#ffe7b0" stop-opacity="0.95"/><stop offset="0.25" stop-color="#ffc77a" stop-opacity="0.5"/><stop offset="1" stop-color="#ffb060" stop-opacity="0"/></radialGradient>
+    <linearGradient id="room" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#140f12"/><stop offset="1" stop-color="#060405"/></linearGradient>
+    <radialGradient id="spill" cx="0.5" cy="0.2" r="0.7"><stop offset="0" stop-color="#f4a060" stop-opacity="0.22"/><stop offset="1" stop-color="#f4a060" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1080" height="1920" fill="url(#sky)"/>
+  <rect width="1080" height="1920" fill="url(#sun)"/>
+  <circle cx="670" cy="1150" r="70" fill="#fff3d6"/>
+  <g fill="#6b4a5c" opacity="0.75">${far}</g>
+  <g fill="#2a1c26">${near}</g>
+  <g fill="#ffd38a" opacity="0.85">${lights}</g>
+  <!-- window frame -->
+  <g fill="#0d0a0c">
+    <rect x="0" y="0" width="1080" height="150"/>
+    <rect x="0" y="0" width="70" height="1920"/><rect x="1010" y="0" width="70" height="1920"/>
+    <rect x="525" y="0" width="30" height="1440"/>
+    <rect x="0" y="690" width="1080" height="26"/>
+  </g>
+  <!-- sill + room -->
+  <rect x="0" y="1420" width="1080" height="500" fill="url(#room)"/>
+  <rect x="0" y="1420" width="1080" height="500" fill="url(#spill)"/>
+  <rect x="0" y="1410" width="1080" height="34" fill="#2a1d1a"/>
+  <rect x="0" y="1410" width="1080" height="4" fill="#f3a46a" opacity="0.6"/>
+  <!-- book + mug on the sill -->
+  <g transform="translate(250 1330)">
+    <path d="M0 80 L130 66 L260 80 L260 92 L130 80 L0 92 Z" fill="#e9dcc6"/>
+    <path d="M0 92 L130 80 L260 92 L260 98 L130 86 L0 98 Z" fill="#8a3b2e"/>
+    <line x1="130" y1="66" x2="130" y2="86" stroke="#b9a88f" stroke-width="2"/>
+  </g>
+  <g transform="translate(700 1300)">
+    <rect x="0" y="40" width="86" height="72" rx="8" fill="#d9cbb5"/>
+    <path d="M86 56 q34 0 34 22 q0 22 -34 22" fill="none" stroke="#d9cbb5" stroke-width="12"/>
+    <path d="M30 30 q-10 -16 4 -30 M54 30 q-10 -16 4 -30" fill="none" stroke="#fff" stroke-opacity="0.35" stroke-width="5" stroke-linecap="round"/>
+  </g>
+</svg>`;
+      })();
+
+      // ---------------------------------------------------------------- timeline (120 BPM, 1 beat = 0.5 s)
+      const tl = gsap.timeline({ paused: true });
+
+      // hero: slow push-in + words land on the beat
+      tl.fromTo("#hero-scene", { scale: 1.0 }, { scale: 1.1, duration: 3, ease: "none" }, 0);
+      document.querySelectorAll("#hero-text span").forEach((el, i) => {
+        tl.fromTo(el, { opacity: 0, y: 40, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.3, ease: "back.out(2)" }, 0.25 + i * 0.5);
+      });
+
+      // grids: tiles pop on 8ths, caption on beat 3, slow Ken Burns on each tile
+      SLIDES.forEach((s, si) => {
+        const S = 3 + si * 3;
+        const sec = GRIDS[si];
+        sec.querySelectorAll(".tile").forEach((tile, ti) => {
+          const t0 = S + ti * 0.25;
+          tl.fromTo(tile, { opacity: 0, scale: 1.12 }, { opacity: 1, scale: 1, duration: 0.28, ease: "power3.out", immediateRender: false }, t0);
+          tl.fromTo(tile.querySelector(".kb"), { scale: 1.0 }, { scale: 1.08, x: ti % 2 ? -10 : 10, duration: S + 3 - t0, ease: "none", immediateRender: false }, t0);
+          tl.fromTo(tile.querySelector(".label"), { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.25, ease: "back.out(2)", immediateRender: false }, t0 + 0.08);
+        });
+        tl.fromTo(sec.querySelector(".caption"), { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2.4)", immediateRender: false }, S + 1.0);
+        // white flash on the cut
+        tl.fromTo("#flash", { opacity: 0.55 }, { opacity: 0, duration: 0.22, ease: "power2.out", immediateRender: false }, S);
+      });
+
+      // set initial hidden states so seeking to t=0 is clean
+      gsap.set(".tile, .tile .label, .caption, #hero-text span", { opacity: 0 });
+      tl.set({}, {}, 15);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
