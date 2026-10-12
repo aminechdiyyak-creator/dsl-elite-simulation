@@ -6,6 +6,12 @@
       "headers": {
         "x-api-key": "${API_KEY_21ST}"
       }
+    },
+    "google-flow": {
+      "command": "node",
+      "args": [
+        "tools/google-flow-browser-mcp/src/index.js"
+      ]
     }
   }
 }

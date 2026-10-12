@@ -19,6 +19,15 @@ Claude Code et vérifie avec `claude mcp list` que `google-flow` apparaît.
 À chaque utilisation : lance `./scripts/start-browser-mac.sh` (ou laisse l'outil `flow_connect`
 démarrer Chrome tout seul), puis demande à Claude de générer une image ou une vidéo.
 
+## Déjà déclaré dans le projet
+
+Le fichier `.mcp.json` à la racine du dépôt déclare ce serveur sous le nom `google-flow`
+(`node tools/google-flow-browser-mcp/src/index.js`). Ouvre Claude Code à la racine du dépôt,
+accepte le serveur quand il le propose, et pense à `npm install` dans ce dossier (fait par
+`install-mac.sh`). Si tu l'as aussi enregistré globalement avec `install-mac.sh`, c'est la
+déclaration du projet qui l'emporte : tu peux supprimer la globale avec
+`claude mcp remove --scope user google-flow`.
+
 ## Ce qui change par rapport à l'original
 
 - **Chemins Mac** : Chrome est trouvé automatiquement (`/Applications/Google Chrome.app`),
